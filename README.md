@@ -74,3 +74,23 @@ io.on("connection", socket => {
 });
 
 http.listen(3000, ()=>console.log("Server jalan di http://localhost:3000"));
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Remi Jumlah 10 Online</title>
+<link rel="stylesheet" href="style.css">
+<script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+<h2>Remi Jumlah 10 (Online)</h2>
+
+<input id="room" placeholder="Nama Room">
+<button onclick="join()">Join</button>
+
+<div id="game"></div>
+
+<script src="game.js"></script>
+</body>
+</html>
