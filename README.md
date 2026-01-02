@@ -1,3 +1,16 @@
+{
+  "name": "remi-jumlah-10-online",
+  "version": "1.0.0",
+  "description": "Game kartu remi online multiplayer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  }
+}
 const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
