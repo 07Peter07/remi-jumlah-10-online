@@ -1,3 +1,11 @@
+
+---
+
+# 📄 .gitignore
+
+```gitignore
+node_modules
+.env
 {
   "name": "remi-jumlah-10-online",
   "version": "1.0.0",
