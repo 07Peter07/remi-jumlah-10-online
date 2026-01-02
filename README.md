@@ -1,1 +1,8 @@
-# remi-jumlah-10-online
+
+---
+
+# 📄 .gitignore
+
+```gitignore
+node_modules
+.env
