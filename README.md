@@ -1,3 +1,40 @@
+const socket = io();
+let room = "";
+let game = {};
+
+function join(){
+  room = document.getElementById("room").value;
+  socket.emit("join", room);
+}
+
+socket.on("update", g=>{
+  game = g;
+  render();
+});
+
+function render(){
+  let html = "<h3>Meja</h3><div class='meja'>";
+  game.meja.forEach(c=>{
+    html += `<span class="card">${c.v}${c.s}</span>`;
+  });
+  html += "</div>";
+
+  game.players.forEach((p,i)=>{
+    html += `<h4>Pemain ${i+1} | Poin: ${p.score}</h4><div class='hand'>`;
+    p.hand.forEach((c,ci)=>{
+      html += `<span class="card" onclick="play(${i},${ci})">${c.v}${c.s}</span>`;
+    });
+    html += "</div>";
+  });
+
+  document.getElementById("game").innerHTML = html;
+}
+
+function play(p,c){
+  game.meja.forEach((_,m)=>{
+    socket.emit("play",{room,p,c,m});
+  });
+}
 body {
   background:#0b3d2e;
   color:#fff;
