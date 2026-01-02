@@ -1,5 +1,3 @@
-npm install
-npm start
 const socket = io();
 let room = "";
 let game = {};
