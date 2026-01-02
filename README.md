@@ -93,16 +93,20 @@ node_modules
 {
   "name": "remi-jumlah-10-online",
   "version": "1.0.0",
-  "description": "Game kartu remi online multiplayer",
+  "private": true,
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
     "express": "^4.18.2",
     "socket.io": "^4.7.2"
   }
 }
+
 const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
