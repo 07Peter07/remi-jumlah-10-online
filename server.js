@@ -4,14 +4,7 @@ const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 
 const PORT = process.env.PORT || 3000;
-const { startGame, endGame } = require("./game/engine");
 
-const game = startGame(3);
-console.log(game.players);
-console.log("Meja:", game.table);
-
-endGame(game);
-console.log("Score:", game.players.map(p => p.score));
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
@@ -91,5 +84,6 @@ io.on("connection", socket => {
 });
 
 http.listen(3000, ()=>console.log("Server jalan di http://localhost:3000"));
+
 
 
