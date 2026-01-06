@@ -1,9 +1,9 @@
-function createPlayers(count) {
-  return Array.from({ length: count }).map((_, i) => ({
-    id: i,
-    hand: [],
-    captured: [],
-    score: 0
+function createPlayers(count){
+  return Array.from({length:count},(_,i)=>({
+    id:i,
+    hand:[],
+    captured:[],
+    score:0
   }));
 }
 
