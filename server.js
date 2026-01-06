@@ -6,6 +6,13 @@ const io = require("socket.io")(http);
 const PORT = process.env.PORT || 3000;
 
 app.use(express.static("public"));
+const { startGame } = require("./game/engine");
+
+app.get("/api/start", (req, res) => {
+  const players = Number(req.query.players || 3);
+  const game = startGame(players);
+  res.json(game);
+});
 
 app.get("/", (req, res) => {
   res.send("Remi Jumlah 10 Online");
@@ -84,4 +91,5 @@ io.on("connection", socket => {
 });
 
 http.listen(3000, ()=>console.log("Server jalan di http://localhost:3000"));
+
 
