@@ -7,14 +7,20 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static("public"));
 
+const { startGame } = require("./game/engine");
+
+// ================= API =================
+app.get("/api/start", (req, res) => {
+  const players = Number(req.query.players || 3);
+  const game = startGame(players);
+  res.json(game);
+});
+
 app.get("/", (req, res) => {
   res.send("Remi Jumlah 10 Online");
 });
 
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
-});
-
+// ================= GAME LOGIC =================
 const SUITS = ["♥","♦","♠","♣"];
 const VALUES = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 const rooms = {};
@@ -33,7 +39,7 @@ function newDeck(){
 
 io.on("connection", socket => {
 
-  socket.on("join", room=>{
+  socket.on("join", room => {
     socket.join(room);
 
     if(!rooms[room]){
@@ -80,9 +86,12 @@ io.on("connection", socket => {
 
     io.to(room).emit("update", g);
   });
-
 });
 
+// ================= START SERVER =================
+http.listen(PORT, () => {
+  console.log("Server running on port", PORT);
+});
 http.listen(3000, ()=>console.log("Server jalan di http://localhost:3000"));
 
 
