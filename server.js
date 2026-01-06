@@ -3,7 +3,17 @@ const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 
+const PORT = process.env.PORT || 3000;
+
 app.use(express.static("public"));
+
+app.get("/", (req, res) => {
+  res.send("Remi Jumlah 10 Online");
+});
+
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
+});
 
 const SUITS = ["♥","♦","♠","♣"];
 const VALUES = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
@@ -74,3 +84,4 @@ io.on("connection", socket => {
 });
 
 http.listen(3000, ()=>console.log("Server jalan di http://localhost:3000"));
+
