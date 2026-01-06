@@ -1,13 +1,13 @@
-function scoreCard(card) {
-  if (!["♥","♦"].includes(card.suit)) return 0;
-  if (card.rank === "A") return 20;
-  if (card.rank === "9") return 10;
-  if (["K","Q","J","10"].includes(card.rank)) return 10;
-  return parseInt(card.rank);
-}
-
-function totalScore(cards) {
-  return cards.reduce((sum, c) => sum + scoreCard(c), 0);
+function totalScore(cards){
+  let score=0;
+  cards.forEach(c=>{
+    if(!["♥","♦"].includes(c.s)) return;
+    if(c.v==="A") score+=20;
+    else if(c.v==="9") score+=10;
+    else if(["J","Q","K"].includes(c.v)) score+=10;
+    else score+=parseInt(c.v);
+  });
+  return score;
 }
 
 module.exports = { totalScore };
