@@ -6,10 +6,13 @@ let roomId = "";
 let playerIndex = null;
 let gameState = null;
 
+socket.on("connect", () => {
+  console.log("SOCKET CONNECTED:", socket.id);
+});
+
 function join() {
   roomId = document.getElementById("room").value;
-
-  console.log("CLICK JOIN:", roomId);
+  console.log("JOIN CLICKED:", roomId);
 
   socket.emit("join-room", {
     roomId,
@@ -17,12 +20,8 @@ function join() {
   });
 }
 
-socket.on("connect", () => {
-  console.log("SOCKET CONNECTED:", socket.id);
-});
-
 socket.on("joined", data => {
-  console.log("JOINED EVENT:", data);
+  console.log("JOINED:", data);
 
   playerIndex = data.playerIndex;
   gameState = data.state;
@@ -34,7 +33,7 @@ socket.on("joined", data => {
 });
 
 socket.on("update", state => {
-  console.log("UPDATE STATE");
+  console.log("UPDATE");
   gameState = state;
   render();
 });
@@ -47,7 +46,7 @@ function render() {
     html += `<span class="card">${c.v}${c.s}</span>`;
   });
 
-  html += "<hr/>";
+  html += "<hr>";
 
   gameState.players.forEach((p, i) => {
     html += `<h4>Pemain ${i + 1}</h4>`;
