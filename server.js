@@ -42,12 +42,25 @@ function onlySelf(card) {
   return ["K", "Q", "J", "10", "5"].includes(card.v);
 }
 
+function isSpecial(card) {
+  return ["K", "Q", "J", "10", "5"].includes(card.v);
+}
+
 function canPair(a, b) {
-  if (onlySelf(a) || onlySelf(b)) {
+  // jika KEDUANYA kartu khusus → harus sama
+  if (isSpecial(a) && isSpecial(b)) {
     return a.v === b.v;
   }
+
+  // jika salah satu kartu khusus → TIDAK BOLEH
+  if (isSpecial(a) || isSpecial(b)) {
+    return false;
+  }
+
+  // kartu biasa → jumlah 10
   return cardValue(a) + cardValue(b) === 10;
 }
+
 
 /* ===== SCORING ===== */
 function scoreCard(card) {
