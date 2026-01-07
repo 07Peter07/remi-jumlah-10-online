@@ -1,3 +1,5 @@
+console.log("CLIENT.JS LOADED");
+
 const socket = io();
 let room="", game={};
 
