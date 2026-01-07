@@ -2,7 +2,6 @@ console.log("CLIENT.JS LOADED");
 
 const socket = io();
 
-let roomId = "";
 let playerIndex = null;
 let gameState = null;
 
@@ -24,17 +23,13 @@ function join() {
   });
 }
 
-
 socket.on("joined", data => {
   console.log("JOINED:", data);
 
   playerIndex = data.playerIndex;
-  gameState = data.state;
 
   document.getElementById("join").style.display = "none";
   document.getElementById("game").style.display = "block";
-
-  render();
 });
 
 socket.on("update", state => {
@@ -45,20 +40,26 @@ socket.on("update", state => {
 
 function render() {
   if (!gameState) return;
+  if (!gameState.players || !gameState.players[playerIndex]) return;
 
-  let html = "<h3>Meja</h3>";
+  const tableDiv = document.getElementById("table");
+  const handDiv = document.getElementById("hand");
+
+  // ===== MEJA =====
+  tableDiv.innerHTML = "";
   gameState.table.forEach(c => {
-    html += `<span class="card">${c.v}${c.s}</span>`;
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerText = c.v + c.s;
+    tableDiv.appendChild(el);
   });
 
-  html += "<hr>";
-
-  gameState.players.forEach((p, i) => {
-    html += `<h4>Pemain ${i + 1}</h4>`;
-    p.hand.forEach(c => {
-      html += `<span class="card">${c.v}${c.s}</span>`;
-    });
+  // ===== TANGAN PEMAIN SENDIRI =====
+  handDiv.innerHTML = "";
+  gameState.players[playerIndex].hand.forEach(c => {
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerText = c.v + c.s;
+    handDiv.appendChild(el);
   });
-
-  document.getElementById("game").innerHTML = html;
 }
