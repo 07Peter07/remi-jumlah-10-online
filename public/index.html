@@ -12,13 +12,19 @@
   <h2>Remi Jumlah 10 Online</h2>
 
   <!-- JOIN AREA -->
-  <div id="join">
-    <input id="room" placeholder="Nama Room">
-    <button onclick="join()">Join</button>
-  </div>
+  <!-- JOIN AREA -->
+<div id="join">
+  <input id="room" placeholder="Nama Room">
 
-  <!-- GAME AREA -->
-  <div id="game" style="display:none"></div>
+  <select id="players">
+    <option value="2">2 Pemain</option>
+    <option value="3" selected>3 Pemain</option>
+    <option value="4">4 Pemain</option>
+  </select>
+
+  <button onclick="join()">Join</button>
+</div>
+
 
   <!-- ⚠️ WAJIB ABSOLUTE PATH -->
   <script src="/client.js"></script>

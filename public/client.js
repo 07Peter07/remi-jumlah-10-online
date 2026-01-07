@@ -11,14 +11,19 @@ socket.on("connect", () => {
 });
 
 function join() {
-  roomId = document.getElementById("room").value;
-  console.log("JOIN CLICKED:", roomId);
+  const roomId = document.getElementById("room").value;
+  const players = Number(
+    document.getElementById("players").value
+  );
+
+  console.log("JOIN:", roomId, players);
 
   socket.emit("join-room", {
     roomId,
-    players: 3
+    players
   });
 }
+
 
 socket.on("joined", data => {
   console.log("JOINED:", data);
