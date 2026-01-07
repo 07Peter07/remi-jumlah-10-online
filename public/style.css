@@ -12,6 +12,14 @@ body {
   border-radius: 6px;
   margin: 4px;
   font-weight: bold;
+}
+.card {
+  background: white;
+  color: black;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 4px;
+  font-weight: bold;
   cursor: pointer;
 }
 
