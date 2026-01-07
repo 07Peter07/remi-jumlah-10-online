@@ -1,20 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Remi Jumlah 10</title>
-<link rel="stylesheet" href="style.css">
-<script src="/socket.io/socket.io.js"></script>
+  <meta charset="UTF-8">
+  <title>Remi Jumlah 10 Online</title>
+
+  <link rel="stylesheet" href="/style.css">
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 
-<h2>Remi Jumlah 10 Online</h2>
+  <h2>Remi Jumlah 10 Online</h2>
 
-<input id="room" placeholder="Nama Room">
-<button onclick="join()">Join</button>
+  <!-- JOIN AREA -->
+  <div id="join">
+    <input id="room" placeholder="Nama Room">
+    <button onclick="join()">Join</button>
+  </div>
 
-<div id="game"></div>
+  <!-- GAME AREA -->
+  <div id="game" style="display:none"></div>
 
-<script src="client.js"></script>
+  <!-- ⚠️ WAJIB ABSOLUTE PATH -->
+  <script src="/client.js"></script>
 </body>
 </html>
