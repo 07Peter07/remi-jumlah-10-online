@@ -6,6 +6,9 @@ let roomId = "";
 let playerIndex = null;
 let gameState = null;
 let selectedHand = null;
+let timerInterval = null;
+let timeLeft = 20;
+
 
 /* =====================
    SOCKET CONNECT
@@ -35,6 +38,7 @@ socket.on("joined", data => {
   document.getElementById("game").style.display = "block";
 });
 
+
 /* =====================
    UPDATE STATE
 ===================== */
@@ -43,6 +47,29 @@ socket.on("update", state => {
   gameState = state;
   render();
 });
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timeLeft = 20;
+
+  const timerEl = document.getElementById("timer");
+  if (!timerEl) {
+    console.warn("⛔ TIMER ELEMENT NOT FOUND");
+    return;
+  }
+
+  timerEl.innerText = timeLeft;
+
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    timerEl.innerText = timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+    }
+  }, 1000);
+}
+
 
 /* =====================
    RENDER UI
@@ -122,4 +149,32 @@ function render() {
     li.innerText = `Pemain ${i + 1}: ${p.score || 0} poin`;
     scoreDiv.appendChild(li);
   });
+
+  
+startTimer();
+
+// ===== GILIRAN =====
+const turnEl = document.getElementById("turn");
+if (turnEl) {
+  turnEl.innerText =
+    gameState.turn === playerIndex
+      ? "KAMU"
+      : "Pemain " + (gameState.turn + 1);
+}
+if (timeLeft <= 0) {
+  clearInterval(timerInterval);
+
+  if (gameState.turn === playerIndex) {
+    socket.emit("skip", {
+      roomId: document.getElementById("room").value,
+      playerIndex
+    });
+  }
+}
+
+// ===== TIMER =====
+startTimer();
+
+
+
 }
