@@ -4,12 +4,19 @@ body {
   font-family:Arial;
   text-align:center;
 }
+
 .card {
-  background:white;
-  color:black;
-  padding:6px 10px;
-  border-radius:6px;
-  margin:4px;
-  display:inline-block;
-  cursor:pointer;
+  background: white;
+  color: black;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 4px;
+  font-weight: bold;
+  cursor: pointer;
 }
+
+.card.selected {
+  transform: translateY(-10px);
+  box-shadow: 0 0 10px gold;
+}
+

@@ -4,6 +4,7 @@ const socket = io();
 
 let playerIndex = null;
 let gameState = null;
+let selectedHand = null;
 
 socket.on("connect", () => {
   console.log("SOCKET CONNECTED:", socket.id);
@@ -59,20 +60,49 @@ function render() {
     return;
   }
 
+  /* ===== MEJA ===== */
   tableDiv.innerHTML = "";
-  gameState.table.forEach(c => {
+  gameState.table.forEach((c, tableIndex) => {
     const el = document.createElement("div");
     el.className = "card";
     el.innerText = c.v + c.s;
+
+    el.onclick = () => {
+      if (selectedHand === null) return;
+      if (gameState.turn !== playerIndex) return;
+
+      socket.emit("play", {
+        roomId: document.getElementById("room").value,
+        playerIndex,
+        handIndex: selectedHand,
+        tableIndex
+      });
+
+      selectedHand = null;
+    };
+
     tableDiv.appendChild(el);
   });
 
+  /* ===== TANGAN PEMAIN ===== */
   handDiv.innerHTML = "";
-  gameState.players[playerIndex].hand.forEach(c => {
+  gameState.players[playerIndex].hand.forEach((c, handIndex) => {
     const el = document.createElement("div");
     el.className = "card";
     el.innerText = c.v + c.s;
+
+    if (selectedHand === handIndex) {
+      el.classList.add("selected");
+    }
+
+    el.onclick = () => {
+      if (gameState.turn !== playerIndex) return;
+      selectedHand = handIndex;
+      render();
+    };
+
     handDiv.appendChild(el);
   });
 }
+
 
