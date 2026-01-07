@@ -28,9 +28,18 @@ socket.on("joined", data => {
 
   playerIndex = data.playerIndex;
 
-  document.getElementById("join").style.display = "none";
-  document.getElementById("game").style.display = "block";
+  const joinDiv = document.getElementById("join");
+  const gameDiv = document.getElementById("game");
+
+  if (!joinDiv || !gameDiv) {
+    console.error("JOIN/GAME DIV NOT FOUND");
+    return;
+  }
+
+  joinDiv.style.display = "none";
+  gameDiv.style.display = "block";
 });
+
 
 socket.on("update", state => {
   console.log("UPDATE");
@@ -45,7 +54,11 @@ function render() {
   const tableDiv = document.getElementById("table");
   const handDiv = document.getElementById("hand");
 
-  // ===== MEJA =====
+  if (!tableDiv || !handDiv) {
+    console.error("TABLE/HAND DIV NOT FOUND");
+    return;
+  }
+
   tableDiv.innerHTML = "";
   gameState.table.forEach(c => {
     const el = document.createElement("div");
@@ -54,7 +67,6 @@ function render() {
     tableDiv.appendChild(el);
   });
 
-  // ===== TANGAN PEMAIN SENDIRI =====
   handDiv.innerHTML = "";
   gameState.players[playerIndex].hand.forEach(c => {
     const el = document.createElement("div");
@@ -63,3 +75,4 @@ function render() {
     handDiv.appendChild(el);
   });
 }
+

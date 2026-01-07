@@ -12,21 +12,30 @@
   <h2>Remi Jumlah 10 Online</h2>
 
   <!-- JOIN AREA -->
-  <!-- JOIN AREA -->
-<div id="join">
-  <input id="room" placeholder="Nama Room">
+  <div id="join">
+    <input id="room" placeholder="Nama Room">
 
-  <select id="players">
-    <option value="2">2 Pemain</option>
-    <option value="3" selected>3 Pemain</option>
-    <option value="4">4 Pemain</option>
-  </select>
+    <select id="players">
+      <option value="2">2 Pemain</option>
+      <option value="3" selected>3 Pemain</option>
+      <option value="4">4 Pemain</option>
+    </select>
 
-  <button onclick="join()">Join</button>
-</div>
+    <button onclick="join()">Join</button>
+  </div>
 
+  <!-- GAME AREA -->
+  <div id="game" style="display:none">
 
-  <!-- ⚠️ WAJIB ABSOLUTE PATH -->
+    <h3>Meja</h3>
+    <div id="table" class="cards"></div>
+
+    <h3>Tangan Kamu</h3>
+    <div id="hand" class="cards"></div>
+
+  </div>
+
+  <!-- SCRIPT PALING BAWAH -->
   <script src="/client.js"></script>
 </body>
 </html>
