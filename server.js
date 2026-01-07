@@ -55,6 +55,23 @@ function canPair(a, b) {
 io.on("connection", socket => {
   console.log("Socket connected:", socket.id);
 
+  function cardValue(card) {
+  if (["J", "Q", "K"].includes(card.v)) return 10;
+  if (card.v === "A") return 1;
+  return Number(card.v);
+}
+
+function onlySelf(card) {
+  return ["K", "Q", "J", "10", "5"].includes(card.v);
+}
+
+function canPair(a, b) {
+  if (onlySelf(a) || onlySelf(b)) {
+    return a.v === b.v;
+  }
+  return cardValue(a) + cardValue(b) === 10;
+}
+
   /* ===== JOIN ROOM ===== */
   socket.on("join-room", ({ roomId, players }) => {
     socket.join(roomId);
@@ -99,54 +116,47 @@ io.on("connection", socket => {
 
   /* ===== PLAY CARD ===== */
   socket.on("play", ({ roomId, playerIndex, handIndex, tableIndex }) => {
-    const room = rooms[roomId];
-    if (!room) return;
+  const room = rooms[roomId];
+  if (!room) return;
 
-    if (room.turn !== playerIndex) {
-      socket.emit("invalid", "Bukan giliran kamu");
-      return;
+  // cek giliran
+  if (room.turn !== playerIndex) return;
+
+  const player = room.players[playerIndex];
+  const handCard = player.hand[handIndex];
+  const tableCard = room.table[tableIndex];
+
+  if (!handCard || !tableCard) return;
+  if (!canPair(handCard, tableCard)) return;
+
+  // simpan kartu hasil ambil
+  player.captured = player.captured || [];
+  player.captured.push(handCard, tableCard);
+
+  // hapus kartu
+  player.hand.splice(handIndex, 1);
+  room.table.splice(tableIndex, 1);
+
+  // ambil 1 kartu dari deck
+  if (room.deck.length > 0) {
+    const drawn = room.deck.shift();
+
+    // cek bisa langsung pasang
+    const matchIndex = room.table.findIndex(t => canPair(drawn, t));
+    if (matchIndex >= 0) {
+      player.captured.push(drawn, room.table[matchIndex]);
+      room.table.splice(matchIndex, 1);
+    } else {
+      room.table.push(drawn);
     }
+  }
 
-    const player = room.players[playerIndex];
-    const handCard = player.hand[handIndex];
-    const tableCard = room.table[tableIndex];
+  // giliran berikutnya (berlawanan jarum jam)
+  room.turn = (room.turn - 1 + room.players.length) % room.players.length;
 
-    if (!handCard || !tableCard) return;
-
-    if (!canPair(handCard, tableCard)) {
-      socket.emit("invalid", "Kartu tidak bisa dipasangkan");
-      return;
-    }
-
-    /* ambil kartu */
-    player.captured.push(handCard, tableCard);
-    player.hand.splice(handIndex, 1);
-    room.table.splice(tableIndex, 1);
-
-    /* ambil kartu sisa */
-    if (room.deck.length > 0) {
-      const drawn = room.deck.shift();
-
-      const matchIndex = room.table.findIndex(t =>
-        canPair(drawn, t)
-      );
-
-      if (matchIndex >= 0) {
-        player.captured.push(drawn, room.table[matchIndex]);
-        room.table.splice(matchIndex, 1);
-      } else {
-        room.table.push(drawn);
-      }
-    }
-
-    /* giliran berlawanan jarum jam */
-    room.turn =
-      (room.turn - 1 + room.players.length) %
-      room.players.length;
-
-    io.to(roomId).emit("update", room);
-  });
+  io.to(roomId).emit("update", room);
 });
+
 
 /* =========================
    START SERVER
