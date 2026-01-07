@@ -39,3 +39,8 @@ body {
   transform: translateY(-10px);
   box-shadow: 0 0 10px gold;
 }
+.card.selected {
+  transform: translateY(-20px) scale(1.05);
+  box-shadow: 0 0 15px gold;
+  border: 2px solid gold;
+}

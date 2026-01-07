@@ -55,68 +55,35 @@ function render() {
   const tableDiv = document.getElementById("table");
   const handDiv = document.getElementById("hand");
 
-  if (!tableDiv || !handDiv) return;
-
-  /* ===== MEJA ===== */
   tableDiv.innerHTML = "";
   gameState.table.forEach((c, tableIndex) => {
     const el = document.createElement("div");
     el.className = "card";
     el.innerText = c.v + c.s;
-
-    el.onclick = () => {
-      // HARUS pilih kartu tangan dulu
-      if (selectedHand === null) {
-        console.log("PILIH KARTU TANGAN DULU");
-        return;
-      }
-
-      // HARUS giliran sendiri
-      if (gameState.turn !== playerIndex) {
-        console.log("BUKAN GILIRANMU");
-        return;
-      }
-
-      console.log("PLAY:", selectedHand, tableIndex);
-
-      socket.emit("play", {
-        roomId: document.getElementById("room").value,
-        playerIndex,
-        handIndex: selectedHand,
-        tableIndex
-      });
-
-      selectedHand = null;
-    };
-
     tableDiv.appendChild(el);
   });
 
-  /* ===== TANGAN PEMAIN ===== */
   handDiv.innerHTML = "";
   gameState.players[playerIndex].hand.forEach((c, handIndex) => {
     const el = document.createElement("div");
     el.className = "card";
     el.innerText = c.v + c.s;
 
+    // 🔥 INI KUNCI POP UP
     if (selectedHand === handIndex) {
       el.classList.add("selected");
     }
 
     el.onclick = () => {
-      if (gameState.turn !== playerIndex) {
-        console.log("BUKAN GILIRANMU");
-        return;
-      }
-
-      console.log("HAND SELECTED:", handIndex);
+      console.log("KLIK KARTU TANGAN:", handIndex);
       selectedHand = handIndex;
-      render(); // refresh supaya kartu naik
+      render(); // ⬅️ WAJIB
     };
 
     handDiv.appendChild(el);
   });
 }
+
 
 console.log("STATE:", gameState.players.map(p => p.score));
 
