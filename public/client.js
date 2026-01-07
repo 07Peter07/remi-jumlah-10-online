@@ -50,52 +50,72 @@ socket.on("update", state => {
 
 function render() {
   if (!gameState) return;
-  if (!gameState.players || !gameState.players[playerIndex]) return;
+  if (!gameState.players) return;
+  if (!gameState.players[playerIndex]) return;
+}
+
 
   const tableDiv = document.getElementById("table");
   const handDiv = document.getElementById("hand");
 
+  /* ===== MEJA ===== */
   tableDiv.innerHTML = "";
   gameState.table.forEach((c, tableIndex) => {
     const el = document.createElement("div");
-    el.className = "card";
+    el.className = "card table";
     el.innerText = c.v + c.s;
+
+    el.onclick = () => {
+      console.log("KLIK MEJA:", tableIndex);
+
+      if (selectedHand === null) {
+        console.log("❌ PILIH KARTU TANGAN DULU");
+        return;
+      }
+
+      if (gameState.turn !== playerIndex) {
+        console.log("❌ BUKAN GILIRANMU");
+        return;
+      }
+
+      console.log("✅ KIRIM PLAY:", selectedHand, tableIndex);
+
+      socket.emit("play", {
+        roomId: document.getElementById("room").value,
+        playerIndex,
+        handIndex: selectedHand,
+        tableIndex
+      });
+
+      selectedHand = null;
+    };
+
     tableDiv.appendChild(el);
   });
 
+  /* ===== TANGAN ===== */
   handDiv.innerHTML = "";
   gameState.players[playerIndex].hand.forEach((c, handIndex) => {
     const el = document.createElement("div");
     el.className = "card";
     el.innerText = c.v + c.s;
 
-    // 🔥 INI KUNCI POP UP
     if (selectedHand === handIndex) {
       el.classList.add("selected");
     }
 
     el.onclick = () => {
-      console.log("KLIK KARTU TANGAN:", handIndex);
-      selectedHand = handIndex;
-      render(); // ⬅️ WAJIB
-    };
+  if (!gameState) return;   // ⬅️ GUARD PENTING
+  console.log("KLIK TANGAN:", handIndex);
+  selectedHand = handIndex;
+  render();
+};
+
 
     handDiv.appendChild(el);
   });
-}
 
 
-console.log("STATE:", gameState.players.map(p => p.score));
-
-
-  // status menang/kalah
-  const status = document.getElementById("status");
-  if (gameState.gameOver) {
-    status.innerText =
-      gameState.players[playerIndex].id === gameState.winner
-        ? "🎉 KAMU MENANG!"
-        : "😢 KAMU KALAH";
-  }
 
 
 
