@@ -50,8 +50,20 @@ socket.on("update", state => {
 
 function render() {
   if (!gameState) return;
-  if (!gameState.players) return;
-  if (!gameState.players[playerIndex]) return;
+
+  const tableDiv = document.getElementById("table");
+  const handDiv = document.getElementById("hand");
+  const scoreDiv = document.getElementById("score");
+
+  if (!tableDiv || !handDiv || !scoreDiv) {
+    console.error("DOM NOT READY", {
+      tableDiv, handDiv, scoreDiv
+    });
+    return;
+  }
+
+  if (!gameState.players || !gameState.players[playerIndex]) return;
+
 }
 
 
