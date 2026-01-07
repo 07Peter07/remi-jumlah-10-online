@@ -9,15 +9,23 @@ let gameState = null;
 function join() {
   roomId = document.getElementById("room").value;
 
+  console.log("CLICK JOIN:", roomId);
+
   socket.emit("join-room", {
     roomId,
     players: 3
   });
 }
 
-socket.on("joined", ({ playerIndex: p, state }) => {
-  playerIndex = p;
-  gameState = state;
+socket.on("connect", () => {
+  console.log("SOCKET CONNECTED:", socket.id);
+});
+
+socket.on("joined", data => {
+  console.log("JOINED EVENT:", data);
+
+  playerIndex = data.playerIndex;
+  gameState = data.state;
 
   document.getElementById("join").style.display = "none";
   document.getElementById("game").style.display = "block";
@@ -26,6 +34,7 @@ socket.on("joined", ({ playerIndex: p, state }) => {
 });
 
 socket.on("update", state => {
+  console.log("UPDATE STATE");
   gameState = state;
   render();
 });
@@ -37,6 +46,8 @@ function render() {
   gameState.table.forEach(c => {
     html += `<span class="card">${c.v}${c.s}</span>`;
   });
+
+  html += "<hr/>";
 
   gameState.players.forEach((p, i) => {
     html += `<h4>Pemain ${i + 1}</h4>`;
