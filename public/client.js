@@ -50,36 +50,76 @@ socket.on("update", state => {
 
 function render() {
   if (!gameState) return;
-  if (!gameState.players[playerIndex]) return;
+  if (!gameState.players || !gameState.players[playerIndex]) return;
 
-  // meja
   const tableDiv = document.getElementById("table");
+  const handDiv = document.getElementById("hand");
+
+  if (!tableDiv || !handDiv) return;
+
+  /* ===== MEJA ===== */
   tableDiv.innerHTML = "";
-  gameState.table.forEach(c => {
+  gameState.table.forEach((c, tableIndex) => {
     const el = document.createElement("div");
     el.className = "card";
     el.innerText = c.v + c.s;
+
+    el.onclick = () => {
+      // HARUS pilih kartu tangan dulu
+      if (selectedHand === null) {
+        console.log("PILIH KARTU TANGAN DULU");
+        return;
+      }
+
+      // HARUS giliran sendiri
+      if (gameState.turn !== playerIndex) {
+        console.log("BUKAN GILIRANMU");
+        return;
+      }
+
+      console.log("PLAY:", selectedHand, tableIndex);
+
+      socket.emit("play", {
+        roomId: document.getElementById("room").value,
+        playerIndex,
+        handIndex: selectedHand,
+        tableIndex
+      });
+
+      selectedHand = null;
+    };
+
     tableDiv.appendChild(el);
   });
 
-  // tangan kamu
-  const handDiv = document.getElementById("hand");
+  /* ===== TANGAN PEMAIN ===== */
   handDiv.innerHTML = "";
-  gameState.players[playerIndex].hand.forEach(c => {
+  gameState.players[playerIndex].hand.forEach((c, handIndex) => {
     const el = document.createElement("div");
     el.className = "card";
     el.innerText = c.v + c.s;
+
+    if (selectedHand === handIndex) {
+      el.classList.add("selected");
+    }
+
+    el.onclick = () => {
+      if (gameState.turn !== playerIndex) {
+        console.log("BUKAN GILIRANMU");
+        return;
+      }
+
+      console.log("HAND SELECTED:", handIndex);
+      selectedHand = handIndex;
+      render(); // refresh supaya kartu naik
+    };
+
     handDiv.appendChild(el);
   });
+}
 
-  // skor
-  const scores = document.getElementById("scores");
-  scores.innerHTML = "";
-  gameState.players.forEach((p, i) => {
-    const li = document.createElement("li");
-    li.innerText = `Pemain ${i + 1}: ${p.score} poin`;
-    scores.appendChild(li);
-  });
+console.log("STATE:", gameState.players.map(p => p.score));
+
 
   // status menang/kalah
   const status = document.getElementById("status");
@@ -89,7 +129,7 @@ function render() {
         ? "🎉 KAMU MENANG!"
         : "😢 KAMU KALAH";
   }
-}
+
 
 
 
