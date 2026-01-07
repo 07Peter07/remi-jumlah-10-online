@@ -50,59 +50,46 @@ socket.on("update", state => {
 
 function render() {
   if (!gameState) return;
-  if (!gameState.players || !gameState.players[playerIndex]) return;
+  if (!gameState.players[playerIndex]) return;
 
+  // meja
   const tableDiv = document.getElementById("table");
-  const handDiv = document.getElementById("hand");
-
-  if (!tableDiv || !handDiv) {
-    console.error("TABLE/HAND DIV NOT FOUND");
-    return;
-  }
-
-  /* ===== MEJA ===== */
   tableDiv.innerHTML = "";
-  gameState.table.forEach((c, tableIndex) => {
+  gameState.table.forEach(c => {
     const el = document.createElement("div");
     el.className = "card";
     el.innerText = c.v + c.s;
-
-    el.onclick = () => {
-      if (selectedHand === null) return;
-      if (gameState.turn !== playerIndex) return;
-
-      socket.emit("play", {
-        roomId: document.getElementById("room").value,
-        playerIndex,
-        handIndex: selectedHand,
-        tableIndex
-      });
-
-      selectedHand = null;
-    };
-
     tableDiv.appendChild(el);
   });
 
-  /* ===== TANGAN PEMAIN ===== */
+  // tangan kamu
+  const handDiv = document.getElementById("hand");
   handDiv.innerHTML = "";
-  gameState.players[playerIndex].hand.forEach((c, handIndex) => {
+  gameState.players[playerIndex].hand.forEach(c => {
     const el = document.createElement("div");
     el.className = "card";
     el.innerText = c.v + c.s;
-
-    if (selectedHand === handIndex) {
-      el.classList.add("selected");
-    }
-
-    el.onclick = () => {
-      if (gameState.turn !== playerIndex) return;
-      selectedHand = handIndex;
-      render();
-    };
-
     handDiv.appendChild(el);
   });
+
+  // skor
+  const scores = document.getElementById("scores");
+  scores.innerHTML = "";
+  gameState.players.forEach((p, i) => {
+    const li = document.createElement("li");
+    li.innerText = `Pemain ${i + 1}: ${p.score} poin`;
+    scores.appendChild(li);
+  });
+
+  // status menang/kalah
+  const status = document.getElementById("status");
+  if (gameState.gameOver) {
+    status.innerText =
+      gameState.players[playerIndex].id === gameState.winner
+        ? "🎉 KAMU MENANG!"
+        : "😢 KAMU KALAH";
+  }
 }
+
 
 
