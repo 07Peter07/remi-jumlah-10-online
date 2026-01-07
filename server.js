@@ -49,114 +49,119 @@ function canPair(a, b) {
   return cardValue(a) + cardValue(b) === 10;
 }
 
+/* ===== SCORING ===== */
+function scoreCard(card) {
+  if (!["♥", "♦"].includes(card.s)) return 0;
+
+  if (card.v === "A") return 20;
+  if (card.v === "9") return 10;
+  if (["K", "Q", "J", "10", "5"].includes(card.v)) return 10;
+
+  return Number(card.v);
+}
+
+function calculateScore(cards = []) {
+  return cards.reduce((sum, c) => sum + scoreCard(c), 0);
+}
+
+function getTarget(players) {
+  if (players === 2) return 105;
+  if (players === 3) return 70;
+  if (players === 4) return 50;
+  return 70;
+}
+
 /* =========================
    SOCKET.IO
 ========================= */
 io.on("connection", socket => {
   console.log("Socket connected:", socket.id);
 
-  function cardValue(card) {
-  if (["J", "Q", "K"].includes(card.v)) return 10;
-  if (card.v === "A") return 1;
-  return Number(card.v);
-}
-
-function onlySelf(card) {
-  return ["K", "Q", "J", "10", "5"].includes(card.v);
-}
-
-function canPair(a, b) {
-  if (onlySelf(a) || onlySelf(b)) {
-    return a.v === b.v;
-  }
-  return cardValue(a) + cardValue(b) === 10;
-}
-
   /* ===== JOIN ROOM ===== */
   socket.on("join-room", ({ roomId, players }) => {
     socket.join(roomId);
 
     if (!rooms[roomId]) {
-  const deck = createDeck();
-  const table = deck.splice(0, 10);
+      const deck = createDeck();
+      const table = deck.splice(0, 10);
 
-  rooms[roomId] = {
-    deck,
-    table,
-    players: [],
-    turn: 0,
-    maxPlayers: players   // ⬅️ PENTING
-  };
-}
-
+      rooms[roomId] = {
+        deck,
+        table,
+        players: [],
+        turn: 0,
+        maxPlayers: players,
+        target: getTarget(players),
+        gameOver: false,
+        winner: null
+      };
+    }
 
     const room = rooms[roomId];
+
     if (room.players.length >= room.maxPlayers) {
-  socket.emit("invalid", "Room sudah penuh");
-  return;
-}
+      socket.emit("invalid", "Room sudah penuh");
+      return;
+    }
 
     const playerIndex = room.players.length;
-
     const hand = room.deck.splice(0, 7);
 
     room.players.push({
       id: socket.id,
       hand,
-      captured: []
+      captured: [],
+      score: 0
     });
 
-    socket.emit("joined", {
-      playerIndex,
-      state: room
-    });
-
+    socket.emit("joined", { playerIndex });
     io.to(roomId).emit("update", room);
   });
 
   /* ===== PLAY CARD ===== */
   socket.on("play", ({ roomId, playerIndex, handIndex, tableIndex }) => {
-  const room = rooms[roomId];
-  if (!room) return;
+    const room = rooms[roomId];
+    if (!room || room.gameOver) return;
+    if (room.turn !== playerIndex) return;
 
-  // cek giliran
-  if (room.turn !== playerIndex) return;
+    const player = room.players[playerIndex];
+    const handCard = player.hand[handIndex];
+    const tableCard = room.table[tableIndex];
 
-  const player = room.players[playerIndex];
-  const handCard = player.hand[handIndex];
-  const tableCard = room.table[tableIndex];
+    if (!handCard || !tableCard) return;
+    if (!canPair(handCard, tableCard)) return;
 
-  if (!handCard || !tableCard) return;
-  if (!canPair(handCard, tableCard)) return;
+    // ambil kartu
+    player.captured.push(handCard, tableCard);
+    player.hand.splice(handIndex, 1);
+    room.table.splice(tableIndex, 1);
 
-  // simpan kartu hasil ambil
-  player.captured = player.captured || [];
-  player.captured.push(handCard, tableCard);
+    // draw kartu
+    if (room.deck.length > 0) {
+      const drawn = room.deck.shift();
+      const matchIndex = room.table.findIndex(t => canPair(drawn, t));
 
-  // hapus kartu
-  player.hand.splice(handIndex, 1);
-  room.table.splice(tableIndex, 1);
-
-  // ambil 1 kartu dari deck
-  if (room.deck.length > 0) {
-    const drawn = room.deck.shift();
-
-    // cek bisa langsung pasang
-    const matchIndex = room.table.findIndex(t => canPair(drawn, t));
-    if (matchIndex >= 0) {
-      player.captured.push(drawn, room.table[matchIndex]);
-      room.table.splice(matchIndex, 1);
-    } else {
-      room.table.push(drawn);
+      if (matchIndex >= 0) {
+        player.captured.push(drawn, room.table[matchIndex]);
+        room.table.splice(matchIndex, 1);
+      } else {
+        room.table.push(drawn);
+      }
     }
-  }
 
-  // giliran berikutnya (berlawanan jarum jam)
-  room.turn = (room.turn - 1 + room.players.length) % room.players.length;
+    // update score & cek menang
+    room.players.forEach(p => {
+      p.score = calculateScore(p.captured);
+      if (p.score >= room.target && !room.gameOver) {
+        room.gameOver = true;
+        room.winner = p.id;
+      }
+    });
 
-  io.to(roomId).emit("update", room);
+    room.turn = (room.turn - 1 + room.players.length) % room.players.length;
+    io.to(roomId).emit("update", room);
+  });
 });
-
 
 /* =========================
    START SERVER
