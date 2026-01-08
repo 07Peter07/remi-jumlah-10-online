@@ -22,7 +22,6 @@ const VALUES = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 // HELPERS
 // ===========================
 
-// Kategori spesial (K,Q,J,10,5)
 function isSpecial(card) {
   return ["K", "Q", "J", "10", "5"].includes(card.v);
 }
@@ -33,31 +32,30 @@ function cardValue(card) {
   return Number(card.v);
 }
 
-// Logic pairing final
 function canPair(a, b) {
-  // dua spesial → harus sama
-  if (isSpecial(a) && isSpecial(b)) {
-    return a.v === b.v;
-  }
-
-  // satu spesial satu biasa → tidak boleh
-  if (isSpecial(a) || isSpecial(b)) {
-    return false;
-  }
-
-  // kartu biasa → jumlah = 10
+  if (isSpecial(a) && isSpecial(b)) return a.v === b.v;
+  if (isSpecial(a) || isSpecial(b)) return false;
   return cardValue(a) + cardValue(b) === 10;
 }
 
-// jumlah kartu awal berdasarkan jumlah pemain
-function getGameRules(players) {
-  if (players === 2) return { hand: 10, table: 12, useFive: true, target: 105 };
-  if (players === 3) return { hand: 7,  table: 10, useFive: true, target: 70 };
-  if (players === 4) return { hand: 5,  table: 8,  useFive: false, target: 50 };
-  return { hand: 7, table: 10, useFive: true, target: 70 };
+function scoreCard(card) {
+  if (!["♥", "♦"].includes(card.s)) return 0;
+  if (card.v === "A") return 20;
+  if (["K","Q","J","10","9"].includes(card.v)) return 10;
+  return Number(card.v);
 }
 
-// Buat deck dengan filter angka 5 (untuk 4 pemain dibuang)
+function calculateScore(cards = []) {
+  return cards.reduce((s,c) => s + scoreCard(c), 0);
+}
+
+function getGameRules(players) {
+  if (players === 2) return { hand:10, table:12, useFive:true, target:105 };
+  if (players === 3) return { hand:7,  table:10, useFive:true, target:70 };
+  if (players === 4) return { hand:5,  table:8,  useFive:false,target:50 };
+  return { hand:7, table:10, useFive:true, target:70 };
+}
+
 function createDeck(useFive) {
   const deck = [];
   SUITS.forEach(s => {
@@ -66,15 +64,15 @@ function createDeck(useFive) {
       deck.push({ v, s });
     });
   });
-  return deck.sort(() => Math.random() - 0.5);
+  return deck.sort(()=>Math.random()-0.5);
 }
 
-// Hilangkan circular reference → aman dikirim ke client
 function publicRoomState(room) {
   return {
     table: room.table,
     players: room.players.map(p => ({
       hand: p.hand,
+      captured: p.captured,
       score: p.score
     })),
     turn: room.turn,
@@ -88,11 +86,9 @@ function publicRoomState(room) {
 io.on("connection", socket => {
   console.log("✔ CONNECT:", socket.id);
 
-  // ===== JOIN ROOM =====
   socket.on("join-room", ({ roomId, players }) => {
     socket.join(roomId);
 
-    // Buat room pertama kali
     if (!rooms[roomId]) {
       const rules = getGameRules(players);
       const deck = createDeck(rules.useFive);
@@ -112,13 +108,11 @@ io.on("connection", socket => {
 
     const room = rooms[roomId];
 
-    // Cek jumlah pemain
     if (players !== room.maxPlayers) {
       socket.emit("invalid", `Room ini untuk ${room.maxPlayers} pemain`);
       return;
     }
 
-    // Cek room penuh
     if (room.players.length >= room.maxPlayers) {
       socket.emit("invalid", "Room sudah penuh");
       return;
@@ -126,7 +120,6 @@ io.on("connection", socket => {
 
     const playerIndex = room.players.length;
 
-    // Tambah pemain baru
     room.players.push({
       id: socket.id,
       hand: room.deck.splice(0, room.rules.hand),
@@ -134,10 +127,7 @@ io.on("connection", socket => {
       score: 0
     });
 
-    // Kirim info ke pemain baru
     socket.emit("joined", { playerIndex });
-
-    // Update semua pemain
     io.to(roomId).emit("update", publicRoomState(room));
   });
 
@@ -145,7 +135,6 @@ io.on("connection", socket => {
   socket.on("play", ({ roomId, playerIndex, handIndex, tableIndex }) => {
     const room = rooms[roomId];
     if (!room) return;
-
     if (room.turn !== playerIndex) return;
 
     const player = room.players[playerIndex];
@@ -153,27 +142,49 @@ io.on("connection", socket => {
     const tableCard = room.table[tableIndex];
 
     if (!handCard || !tableCard) return;
-
     if (!canPair(handCard, tableCard)) return;
 
-    // Pairing berhasil → simpan
     player.captured.push(handCard, tableCard);
 
-    // hapus dari tangan dan meja
     player.hand.splice(handIndex, 1);
     room.table.splice(tableIndex, 1);
 
-    // draw kartu ke meja kalau deck masih ada
     if (room.deck.length > 0) {
-      room.table.push(room.deck.shift());
+      const drawn = room.deck.shift();
+      const matchIndex = room.table.findIndex(t => canPair(drawn, t));
+
+      if (matchIndex >= 0) {
+        player.captured.push(drawn, room.table[matchIndex]);
+        room.table.splice(matchIndex, 1);
+      } else {
+        room.table.push(drawn);
+      }
     }
 
-    // next turn
+    room.players.forEach(p => {
+      p.score = calculateScore(p.captured);
+    });
+
     room.turn = (room.turn + 1) % room.players.length;
 
-    // broadcast update
     io.to(roomId).emit("update", publicRoomState(room));
   });
+
+  // ===== TAKE-ONE (AMBIL KARTU DARI MEJA) =====
+  socket.on("take-one", ({ roomId, playerIndex, tableIndex }) => {
+    const room = rooms[roomId];
+    if (!room) return;
+    if (room.turn !== playerIndex) return;
+    if (!room.table[tableIndex]) return;
+
+    const card = room.table.splice(tableIndex, 1)[0];
+    room.players[playerIndex].hand.push(card);
+
+    room.turn = (room.turn + 1) % room.players.length;
+
+    io.to(roomId).emit("update", publicRoomState(room));
+  });
+
 });
 
 // ===========================
