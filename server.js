@@ -199,12 +199,12 @@ io.on("connection", socket => {
 
   io.to(roomId).emit("update", publicRoomState(room));
 });
+});
 
-
+console.log("DEBUG: server.js reached bottom");
 
 // ===========================
-server.listen(PORT, () =>
-  console.log("🚀 Server running on port", PORT)
-);
+server.listen(PORT, () => {
+  console.log("🚀 Server running on port", PORT);
 });
 
