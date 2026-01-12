@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Remi Jumlah 10 Online</title>
+
+  <link rel="stylesheet" href="/style.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+  <h2>Remi Jumlah 10 Online</h2>
+
+  <!-- JOIN -->
+  <div id="join">
+    <input id="room" placeholder="Nama Room">
+
+    <select id="players">
+      <option value="2">2 Pemain</option>
+      <option value="3" selected>3 Pemain</option>
+      <option value="4">4 Pemain</option>
+    </select>
+
+    <button onclick="join()">Join</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="game" style="display:none">
+
+  <!-- ===== STATUS BAR ===== -->
+  <div style="margin:10px 0; font-size:18px;">
+    ⏱️ Waktu: <span id="timer">20</span> detik |
+    Giliran: <b id="turn">-</b>
+  </div>
+
+  <h3>Meja</h3>
+  <div id="table" class="cards"></div>
+
+  <h3>Tangan Kamu</h3>
+  <div id="hand" class="cards"></div>
+
+  <h3>Skor</h3>
+  <ul id="score"></ul>
+
+</div>
+
+
+
+  <script src="/client.js"></script>
+</body>
+</html>
