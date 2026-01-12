@@ -6,175 +6,167 @@ let roomId = "";
 let playerIndex = null;
 let gameState = null;
 let selectedHand = null;
-let timerInterval = null;
-let timeLeft = 20;
 
-
-/* =====================
-   SOCKET CONNECT
-===================== */
-socket.on("connect", () => {
-  console.log("SOCKET CONNECTED:", socket.id);
-});
-
-/* =====================
-   JOIN ROOM
-===================== */
+/* JOIN */
 function join() {
   roomId = document.getElementById("room").value;
   const players = Number(document.getElementById("players").value);
-
-  console.log("JOIN:", roomId, players);
-
   socket.emit("join-room", { roomId, players });
 }
 
 socket.on("joined", data => {
-  console.log("JOINED:", data);
-
   playerIndex = data.playerIndex;
-
   document.getElementById("join").style.display = "none";
   document.getElementById("game").style.display = "block";
+
+  document.getElementById("takeBtn").onclick = takeCardManually;
 });
 
-
-/* =====================
-   UPDATE STATE
-===================== */
+/* UPDATE */
 socket.on("update", state => {
-  console.log("UPDATE");
   gameState = state;
   render();
 });
 
-function startTimer() {
-  clearInterval(timerInterval);
-  timeLeft = 20;
-
-  const timerEl = document.getElementById("timer");
-  if (!timerEl) {
-    console.warn("⛔ TIMER ELEMENT NOT FOUND");
-    return;
-  }
-
-  timerEl.innerText = timeLeft;
-
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    timerEl.innerText = timeLeft;
-
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-    }
-  }, 1000);
-}
-
-
-/* =====================
-   RENDER UI
-===================== */
+/* RENDER UTAMA */
 function render() {
   if (!gameState) return;
-  if (!gameState.players || !gameState.players[playerIndex]) return;
 
-  const tableDiv = document.getElementById("table");
-  const handDiv = document.getElementById("hand");
-  const scoreDiv = document.getElementById("score");
+  document.getElementById("turn").innerText =
+    gameState.turn === playerIndex ? "KAMU" : "Pemain " + (gameState.turn + 1);
 
-  if (!tableDiv || !handDiv || !scoreDiv) {
-    console.error("DOM NOT READY");
+  document.getElementById("deckCount").innerText = gameState.deckCount;
+
+  placePlayersUI();
+  renderTable();
+  renderScore();
+}
+
+/* POSISI PEMAIN */
+function placePlayersUI() {
+  const total = gameState.players.length;
+
+  const pos = ["player-top","player-right","player-bottom","player-left"];
+
+  pos.forEach(id => {
+    document.getElementById(id).style.display = "none";
+    document.getElementById(id).innerHTML = "";
+  });
+
+  if (total === 2) {
+    renderPlayer(0, "player-top");
+    renderPlayer(1, "player-bottom");
+  }
+  if (total === 3) {
+    renderPlayer(0, "player-top");
+    renderPlayer(1, "player-left");
+    renderPlayer(2, "player-right");
+  }
+  if (total === 4) {
+    renderPlayer(0, "player-top");
+    renderPlayer(1, "player-right");
+    renderPlayer(2, "player-bottom");
+    renderPlayer(3, "player-left");
+  }
+}
+
+/* RENDER PLAYER INDIVIDU */
+function renderPlayer(i, slotId) {
+  const slot = document.getElementById(slotId);
+  const p = gameState.players[i];
+  slot.style.display = "block";
+
+  let html = `<div>${i === playerIndex ? "Kamu" : "Pemain " + (i+1)}</div><div class="cards">`;
+
+  if (i === playerIndex) {
+    p.hand.forEach((c,idx)=>{
+      html += `<div class="card${selectedHand===idx?" selected":""}"
+        onclick="selectHand(${idx})">${c.v}${c.s}</div>`;
+    });
+  } else {
+    p.hand.forEach(()=>{
+      html += `<div class="card back">🂠</div>`;
+    });
+  }
+
+  html += `</div>`;
+  slot.innerHTML = html;
+
+  // === RENDER CAPTURED ===
+  renderCaptured(i);
+}
+
+/* SELECT HAND CARD */
+function selectHand(i) {
+  selectedHand = i;
+  render();
+}
+
+/* RENDER MEJA */
+function renderTable() {
+  const table = document.getElementById("table");
+  table.innerHTML = "";
+  gameState.table.forEach((c,i)=>{
+    const div=document.createElement("div");
+    div.className="card table";
+    div.innerText=c.v+c.s;
+    div.onclick=()=>handleTableClick(i);
+    table.appendChild(div);
+  });
+}
+
+/* KLIK MEJA */
+function handleTableClick(i) {
+  if (gameState.turn !== playerIndex) return;
+
+  if (selectedHand === null) {
+    socket.emit("take-one",{roomId,playerIndex,tableIndex:i});
     return;
   }
 
-  /* ===== MEJA ===== */
-  tableDiv.innerHTML = "";
-  gameState.table.forEach((c, tableIndex) => {
-    const el = document.createElement("div");
-    el.className = "card table";
-    el.innerText = c.v + c.s;
+  socket.emit("play",{roomId,playerIndex,handIndex:selectedHand,tableIndex:i});
+  selectedHand=null;
+}
 
-    el.onclick = () => {
-      console.log("KLIK MEJA:", tableIndex);
+/* TOMBOL AMBIL */
+function takeCardManually() {
+  if (gameState.turn !== playerIndex) return;
+  if (!gameState.table.length) return;
+  socket.emit("take-one",{roomId,playerIndex,tableIndex:0});
+}
 
-      if (selectedHand === null) {
-        console.log("❌ PILIH KARTU TANGAN DULU");
-        return;
-      }
-
-      if (gameState.turn !== playerIndex) {
-        console.log("❌ BUKAN GILIRANMU");
-        return;
-      }
-
-      console.log("✅ PLAY:", selectedHand, tableIndex);
-
-      socket.emit("play", {
-        roomId,
-        playerIndex,
-        handIndex: selectedHand,
-        tableIndex
-      });
-
-      selectedHand = null;
-    };
-
-    tableDiv.appendChild(el);
-  });
-
-  /* ===== TANGAN ===== */
-  handDiv.innerHTML = "";
-  gameState.players[playerIndex].hand.forEach((c, handIndex) => {
-    const el = document.createElement("div");
-    el.className = "card";
-    el.innerText = c.v + c.s;
-
-    if (selectedHand === handIndex) {
-      el.classList.add("selected");
-    }
-
-    el.onclick = () => {
-      console.log("KLIK TANGAN:", handIndex);
-      selectedHand = handIndex;
-      render();
-    };
-
-    handDiv.appendChild(el);
-  });
-
-  /* ===== SKOR ===== */
-  scoreDiv.innerHTML = "";
-  gameState.players.forEach((p, i) => {
-    const li = document.createElement("li");
-    li.innerText = `Pemain ${i + 1}: ${p.score || 0} poin`;
+/* RENDER SKOR */
+function renderScore() {
+  const scoreDiv=document.getElementById("score");
+  scoreDiv.innerHTML="";
+  gameState.players.forEach((p,i)=>{
+    const li=document.createElement("li");
+    li.innerText=`Pemain ${i+1}: ${p.score}`;
     scoreDiv.appendChild(li);
   });
-
-  
-startTimer();
-
-// ===== GILIRAN =====
-const turnEl = document.getElementById("turn");
-if (turnEl) {
-  turnEl.innerText =
-    gameState.turn === playerIndex
-      ? "KAMU"
-      : "Pemain " + (gameState.turn + 1);
-}
-if (timeLeft <= 0) {
-  clearInterval(timerInterval);
-
-  if (gameState.turn === playerIndex) {
-    socket.emit("skip", {
-      roomId: document.getElementById("room").value,
-      playerIndex
-    });
-  }
 }
 
-// ===== TIMER =====
-startTimer();
+function renderCaptured(playerIndex) {
+  const p = gameState.players[playerIndex];
+  const map = [
+    "captured-top",
+    "captured-right",
+    "captured-bottom",
+    "captured-left"
+  ];
 
+  const slotId = map[playerIndex];
+  const slot = document.getElementById(slotId);
 
+  if (!slot) return;
 
+  slot.style.display = "block";
+  slot.innerHTML = "";
+
+  p.captured.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "captured-card";
+    div.innerText = `${c.v}${c.s}`;
+    slot.appendChild(div);
+  });
 }
