@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Remi Jumlah 10 Online</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
 
   <link rel="stylesheet" href="/style.css">
   <script src="/socket.io/socket.io.js"></script>
@@ -14,37 +17,50 @@
   <!-- JOIN -->
   <div id="join">
     <input id="room" placeholder="Nama Room">
-
     <select id="players">
       <option value="2">2 Pemain</option>
       <option value="3" selected>3 Pemain</option>
       <option value="4">4 Pemain</option>
     </select>
-
     <button onclick="join()">Join</button>
   </div>
 
   <!-- GAME -->
   <div id="game" style="display:none">
 
-  <!-- ===== STATUS BAR ===== -->
-  <div style="margin:10px 0; font-size:18px;">
-    ⏱️ Waktu: <span id="timer">20</span> detik |
-    Giliran: <b id="turn">-</b>
+    <div id="infoBar" style="margin-bottom:10px;">
+      Giliran: <b id="turn">-</b> |
+      Sisa Kartu: <b id="deckCount">-</b>
+    </div>
+
+    <button id="takeBtn">Ambil Kartu dari Meja</button>
+
+    <div id="poker-table">
+
+      <!-- PLAYER SLOTS -->
+      <div id="player-top" class="player-slot"></div>
+      <div id="player-right" class="player-slot"></div>
+      <div id="player-bottom" class="player-slot"></div>
+      <div id="player-left" class="player-slot"></div>
+
+      <!-- CAPTURED SLOTS -->
+      <div id="captured-top" class="captured-slot"></div>
+      <div id="captured-right" class="captured-slot"></div>
+      <div id="captured-bottom" class="captured-slot"></div>
+      <div id="captured-left" class="captured-slot"></div>
+
+      <!-- TABLE -->
+      <div id="center-table">
+        <h3 style="margin:0;">Meja</h3>
+        <div id="table" class="cards" style="margin-top:6px;"></div>
+      </div>
+
+    </div>
+
+    <h3 style="margin-top:10px;">Skor</h3>
+    <ul id="score"></ul>
+
   </div>
-
-  <h3>Meja</h3>
-  <div id="table" class="cards"></div>
-
-  <h3>Tangan Kamu</h3>
-  <div id="hand" class="cards"></div>
-
-  <h3>Skor</h3>
-  <ul id="score"></ul>
-
-</div>
-
-
 
   <script src="/client.js"></script>
 </body>
