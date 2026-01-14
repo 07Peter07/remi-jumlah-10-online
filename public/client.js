@@ -169,7 +169,9 @@ function renderTable() {
 function handleTableClick(i) {
   if (gameState.turn !== playerIndex) return;
 
-  if (selectedHand === null) return;
+  if (selectedHand === null) {
+    socket.emit("take-one",{roomId,playerIndex});
+  } return;
 
   socket.emit("play",{roomId,playerIndex,handIndex:selectedHand,tableIndex:i});
   selectedHand=null;

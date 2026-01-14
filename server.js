@@ -146,7 +146,6 @@ io.on("connection", socket => {
     if (!canPair(handCard, tableCard)) return;
 
     player.captured.push(handCard, tableCard);
-
     player.hand.splice(handIndex, 1);
     room.table.splice(tableIndex, 1);
 
@@ -154,9 +153,7 @@ io.on("connection", socket => {
     room.players.forEach(p => {
       p.score = calculateScore(p.captured);
     });
-
-    room.turn = (room.turn + 1) % room.players.length;
-
+    
     io.to(roomId).emit("update", publicRoomState(room));
   });
 
