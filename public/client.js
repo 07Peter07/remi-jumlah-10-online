@@ -44,7 +44,25 @@ function render() {
 
   placePlayersUI();
   renderTable();
+  renderHand();
   renderScore();
+}
+
+function renderHand() {
+  const handDiv = document.getElementById("hand");
+  if (!handDiv) return;
+
+  handDiv.innerHTML = "";
+  const me = gameState.players[playerIndex];
+
+  me.hand.forEach((c, i) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerText = c.v + c.s;
+    div.onclick = () => selectHand(i);
+    if (selectedHand === i) div.style.boxShadow = "0 0 8px gold";
+    handDiv.appendChild(div);
+  });
 }
 
 /* === POKER POSITION HANDLER === */
@@ -151,10 +169,7 @@ function renderTable() {
 function handleTableClick(i) {
   if (gameState.turn !== playerIndex) return;
 
-  if (selectedHand === null) {
-    socket.emit("take-one",{roomId,playerIndex,tableIndex:i});
-    return;
-  }
+  if (selectedHand === null) return;
 
   socket.emit("play",{roomId,playerIndex,handIndex:selectedHand,tableIndex:i});
   selectedHand=null;
@@ -170,7 +185,7 @@ function selectHand(i) {
 function takeCardManually() {
   if (gameState.turn !== playerIndex) return;
   if (!gameState.table.length) return;
-  socket.emit("take-one",{roomId,playerIndex,tableIndex:0});
+  socket.emit("take-one",{roomId,playerIndex});
 }
 
 /* === SCORE === */

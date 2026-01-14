@@ -172,33 +172,41 @@ io.on("connection", socket => {
   });
 
   // ===== TAKE-ONE (AMBIL KARTU DARI MEJA) =====
-  socket.on("take-one", ({ roomId, playerIndex, tableIndex }) => {
+  socket.on("take-one", ({ roomId, playerIndex }) => {
   const room = rooms[roomId];
   if (!room) return;
   if (room.turn !== playerIndex) return;
-  if (!room.table[tableIndex]) return;
+  if (!room.deck.length) return; // deck habis
 
   const player = room.players[playerIndex];
 
-  // ambil kartu dari meja
-  const card = room.table.splice(tableIndex, 1)[0];
-  player.hand.push(card);
+  // Ambil 1 kartu dari deck
+  const drawn = room.deck.shift();
 
-  // draw dari deck ke meja kalau masih ada
-  if (room.deck.length > 0) {
-    room.table.push(room.deck.shift());
+  // Cek apakah bisa dipasangkan dengan salah satu kartu di meja
+  const matchIndex = room.table.findIndex(t => canPair(drawn, t));
+
+  if (matchIndex >= 0) {
+    // Ada pasangan → langsung capture
+    player.captured.push(drawn, room.table[matchIndex]);
+    room.table.splice(matchIndex, 1);
+  } else {
+    // Tidak ada pasangan → letakkan di meja
+    room.table.push(drawn);
   }
 
-  // update score (optional)
+  // Update skor
   room.players.forEach(p => {
     p.score = calculateScore(p.captured);
   });
 
-  // next turn
+  // Next turn
   room.turn = (room.turn + 1) % room.players.length;
 
+  // Broadcast
   io.to(roomId).emit("update", publicRoomState(room));
 });
+
 });
 
 console.log("DEBUG: server.js reached bottom");
