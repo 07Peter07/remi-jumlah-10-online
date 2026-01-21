@@ -6,43 +6,46 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
+
   <link rel="stylesheet" href="/style.css">
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 
-  <h2 style="margin-bottom:5px;">REM I MERAH</h2>
+  <h2 style="margin-top:10px; margin-bottom:5px;">REMI MERAH</h2>
 
-  <!-- JOIN -->
+  <!-- JOIN SCREEN -->
   <div id="join">
-    <input id="room" placeholder="Nama Room">
-    <select id="players">
+    <input id="room" placeholder="Nama Room" style="padding:6px;">
+    <select id="players" style="padding:6px;">
       <option value="2">2 Pemain</option>
       <option value="3">3 Pemain</option>
-      <option value="4">4 Pemain</option>
+      <option value="4" selected>4 Pemain</option>
     </select>
-    <button onclick="join()">Join</button>
+    <button onclick="join()" style="padding:6px 12px;">Join</button>
   </div>
 
-  <!-- GAME -->
-  <div id="game" style="display:none">
+  <!-- GAME SCREEN -->
+  <div id="game" style="display:none; padding-top:10px;">
 
-    <div id="infoBar" class="info-bar">
-      Giliran: <b id="turn">-</b> | Sisa Kartu: <b id="deckCount">-</b>
+    <!-- INFO BAR -->
+    <div id="infoBar" style="margin-bottom:10px;">
+      Giliran: <b id="turn">-</b> |
+      Sisa Kartu: <b id="deckCount">-</b>
     </div>
 
     <button id="takeBtn">Ambil Kartu</button>
 
-    <!-- BOARD -->
-    <div id="board">
+    <!-- TABLE AREA -->
+    <div id="poker-table">
 
-      <!-- MEJA -->
-      <div id="table-area">
-        <h3 style="margin:0;">Meja</h3>
+      <!-- CENTER TABLE -->
+      <div id="center-table">
+        <h3 style="margin:0 0 4px 0;">Meja</h3>
         <div id="table" class="cards"></div>
       </div>
 
-      <!-- PEMAIN -->
+      <!-- PLAYER SLOTS -->
       <div id="player-top" class="player-slot"></div>
       <div id="player-right" class="player-slot"></div>
       <div id="player-bottom" class="player-slot"></div>
@@ -50,10 +53,12 @@
 
     </div>
 
-    <h3 style="margin-top:10px;">Tangan Kamu</h3>
-    <div id="hand" class="cards"></div>
+    <!-- YOUR HAND -->
+    <h3 style="margin-top:15px;">Tangan Kamu</h3>
+    <div id="hand"></div>
 
-    <h3 style="margin-top:10px;">Skor</h3>
+    <!-- SCORE -->
+    <h3 style="margin-top:12px;">Skor</h3>
     <ul id="score"></ul>
 
   </div>

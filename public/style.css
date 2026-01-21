@@ -1,98 +1,54 @@
 body {
-  background: #033224;
+  background: #064025;
   color: white;
   font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
   text-align: center;
-  margin:0;
-  padding:10px;
 }
 
-#takeBtn {
-  padding: 6px 14px;
-  cursor: pointer;
-  border-radius:6px;
-  background:#e8e8e8;
-  margin-bottom: 10px;
-  border:1px solid #555;
+#join {
+  margin-top: 20px;
 }
 
-#board {
-  position: relative;
-  width: 100%;
-  height: 550px;
-  background: #064636;
-  border: 3px solid #1b6d45;
-  border-radius: 14px;
+#game {
   margin-top: 10px;
 }
 
-/* MEJA DI TENGAH */
-#table-area {
+#takeBtn {
+  padding: 8px 14px;
+  background: #eaeaea;
+  border-radius: 6px;
+  border: 1px solid #444;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+#takeBtn:hover {
+  background: #fff;
+}
+
+#poker-table {
+  position: relative;
+  width: 88%;
+  height: 480px;
+  margin: 10px auto;
+  background: #0a5135;
+  border: 3px solid #1a7b52;
+  border-radius: 32px;
+}
+
+.player-slot, .captured-slot {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  width: 240px;
   text-align: center;
-}
-
-/* KARTU */
-.cards {
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:6px;
-}
-
-.card-img {
-  width: 75px;
-  height: 105px;
-  border-radius:6px;
-  user-select:none;
-}
-
-.card-img:hover {
-  transform: translateY(-6px);
-  transition: 0.1s;
-}
-
-.back-img {
-  width: 75px;
-  height: 105px;
-  border-radius:6px;
-}
-
-/* SLOT PEMAIN */
-.player-slot {
-  position: absolute;
-  width: 200px;
-  min-height: 60px;
-  text-align: center;
+  color: white;
   font-size: 14px;
-  color:white;
 }
 
-/* POSISI DINAMIS */
-#player-top { top: 10px; left:50%; transform:translateX(-50%); }
-#player-bottom { bottom: 10px; left:50%; transform:translateX(-50%); }
-#player-left { left:10px; top:50%; transform:translateY(-50%); }
-#player-right { right:10px; top:50%; transform:translateY(-50%); }
-
-/* HAND (PALING BAWAH) */
-#hand {
-  display:flex;
-  justify-content:center;
-  margin-top:10px;
-  min-height: 120px;
-}
-.card-img, .card-back {
-  width: 72px;
-  height: 100px;
-  user-select: none;
-}
-
-.card-back {
-  width: 50px;
-  height: 70px;
+.player-name {
+  font-weight: bold;
+  margin-bottom: 6px;
 }
 
 .cards {
@@ -100,4 +56,64 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   gap: 6px;
+}
+
+.card-img {
+  width: 70px;
+  height: 98px;
+  user-select: none;
+}
+
+.small-card {
+  width: 44px;
+  height: 62px;
+}
+
+.back-card {
+  width: 44px;
+  height: 62px;
+}
+
+.tiny-card {
+  width: 28px;
+  height: 40px;
+}
+
+.table-card {
+  width: 70px;
+  height: 98px;
+  cursor: pointer;
+}
+
+/* TABLE CENTER */
+#center-table {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/****************************************
+ POSITIONS FOR 2 / 3 / 4 PLAYERS
+*****************************************/
+#player-top { top: 8px; left: 50%; transform: translateX(-50%); }
+#player-bottom { bottom: 8px; left: 50%; transform: translateX(-50%); }
+
+#player-left { left: 8px; top: 50%; transform: translateY(-50%); }
+#player-right { right: 8px; top: 50%; transform: translateY(-50%); }
+
+#captured-top { top: 68px; left: 50%; transform: translateX(-50%); }
+#captured-bottom { bottom: 68px; left: 50%; transform: translateX(-50%); }
+
+#captured-left { left: 8px; top: calc(50% + 70px); transform: translateY(-50%); }
+#captured-right { right: 8px; top: calc(50% + 70px); transform: translateY(-50%); }
+
+/****************************************
+ HAND (BOTTOM PLAYER)
+*****************************************/
+#hand {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
 }
