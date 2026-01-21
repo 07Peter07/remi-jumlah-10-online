@@ -107,10 +107,11 @@ function drawPlayer(i, slotId) {
 
   slot.style.display = "block";
 
-  let html = `<div style="margin-bottom:4px;">
-    ${i===playerIndex ? "Kamu" : "Pemain "+(i+1)}
-    ${gameState.turn===i ? " 🔥" : ""}
+  let html = `<div class="player-name">
+  ${i===playerIndex ? "Kamu" : "Pemain "+(i+1)}
+  ${gameState.turn===i ? " 🔥" : ""}
   </div>`;
+
 
   html += `<div class="cards">`;
 

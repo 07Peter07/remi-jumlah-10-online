@@ -1,54 +1,74 @@
 body {
-  background: #0b3d2e;
+  background: #053324;
   color: white;
+  margin: 0;
   font-family: Arial, sans-serif;
   text-align: center;
 }
 
 #infoBar {
-  margin: 10px 0;
+  padding: 10px;
   font-size: 18px;
 }
 
 #takeBtn {
-  padding: 6px 14px;
+  padding: 8px 20px;
+  margin: 10px 0;
   cursor: pointer;
-  margin-bottom: 10px;
 }
 
 #poker-table {
   position: relative;
   width: 100%;
-  height: 480px;
-  background: #0b3d2e;
-  border: 3px solid #1b5e3c;
-  border-radius: 18px;
-  margin-top: 10px;
+  height: 540px;
+  box-sizing: border-box;
+  border: 3px solid #0f4c33;
+  border-radius: 20px;
+  margin: auto;
+  overflow: hidden;
 }
 
-/* PLAYER SLOT */
+/* PLAYER NAME */
+.player-name {
+  margin-bottom: 6px;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+/* PLAYER SLOTS */
 .player-slot {
   position: absolute;
-  width: 180px;
-  height: 100px;
+  width: 240px;
+  min-height: 80px;
   text-align: center;
-  font-weight: bold;
-  font-size: 14px;
 }
 
 #player-top { top: 10px; left: 50%; transform: translateX(-50%); }
 #player-bottom { bottom: 10px; left: 50%; transform: translateX(-50%); }
-#player-left { left: 10px; top: 50%; transform: translateY(-50%); }
-#player-right { right: 10px; top: 50%; transform: translateY(-50%); }
+#player-left { top: 50%; left: 10px; transform: translateY(-50%); }
+#player-right { top: 50%; right: 10px; transform: translateY(-50%); }
 
-/* TABLE CENTER */
+/* CAPTURED AREAS */
+.captured-slot {
+  position: absolute;
+  width: 180px;
+  min-height: 60px;
+  text-align: center;
+  font-size: 12px;
+}
+
+#captured-top { top: 100px; left: 50%; transform: translateX(-50%); }
+#captured-bottom { bottom: 100px; left: 50%; transform: translateX(-50%); }
+#captured-left { left: 10px; top: 60%; transform: translateY(-50%); }
+#captured-right { right: 10px; top: 60%; transform: translateY(-50%); }
+
+/* CENTER TABLE */
 #center-table {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 260px;
+  width: 420px;
   transform: translate(-50%, -50%);
-  text-align: center;
 }
 
 /* CARDS */
@@ -65,21 +85,16 @@ body {
   padding: 8px 12px;
   border-radius: 8px;
   font-weight: bold;
+  min-width: 36px;
   user-select: none;
   cursor: pointer;
-  min-width: 38px;
-  text-align: center;
   transition: .15s;
+  text-align: center;
 }
 
 .card.selected {
-  transform: translateY(-10px);
+  transform: translateY(-8px);
   box-shadow: 0 0 10px gold;
-}
-
-.card.table:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 0 8px #00ff99;
 }
 
 .card.back {
@@ -88,29 +103,7 @@ body {
   border: 2px solid #555;
 }
 
-/* CAPTURED AREA */
-.captured-slot {
-  position: absolute;
-  width: 200px;
-  min-height: 60px;
-  text-align: center;
-  font-size: 12px;
-}
-
-/* CAPTURED POSITIONS */
-#captured-top { top: 120px; left: 50%; transform: translateX(-50%); }
-#captured-bottom { bottom: 120px; left: 50%; transform: translateX(-50%); }
-#captured-left { left: 10px; top: calc(50% + 70px); transform: translateY(-50%); }
-#captured-right { right: 10px; top: calc(50% + 70px); transform: translateY(-50%); }
-
-/* DISPLAY CARD CAPTURED */
-.captured-card {
-  background: gold;
-  color: black;
-  padding: 4px 6px;
-  border-radius: 4px;
-  margin: 2px;
-  display: inline-block;
-  font-weight: bold;
-  font-size: 13px;
+.card.table:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 0 6px #00ff99;
 }
