@@ -48,6 +48,7 @@ function render() {
   renderScore();
 }
 
+/* === RENDER HAND === */
 function renderHand() {
   const handDiv = document.getElementById("hand");
   if (!handDiv) return;
@@ -65,7 +66,7 @@ function renderHand() {
   });
 }
 
-/* === POKER POSITION HANDLER === */
+/* === PLAYERS POSITION === */
 function placePlayersUI() {
   const total = gameState.players.length;
 
@@ -81,7 +82,6 @@ function placePlayersUI() {
     4: ["captured-top","captured-right","captured-bottom","captured-left"]
   };
 
-  // Clear all slots first
   [...document.querySelectorAll(".player-slot")].forEach(el=>{
     el.style.display="none";
     el.innerHTML="";
@@ -169,13 +169,23 @@ function renderTable() {
 function handleTableClick(i) {
   if (gameState.turn !== playerIndex) return;
 
+  // Jika tidak pilih kartu → ambil kartu
   if (selectedHand === null) {
-    socket.emit("take-one",{roomId,playerIndex});
-  } return;
+    socket.emit("take-one", { roomId, playerIndex });
+    return;
+  }
 
-  socket.emit("play",{roomId,playerIndex,handIndex:selectedHand,tableIndex:i});
-  selectedHand=null;
+  // Mode pairing
+  socket.emit("play", {
+    roomId,
+    playerIndex,
+    handIndex: selectedHand,
+    tableIndex: i
+  });
+
+  selectedHand = null;
 }
+
 
 /* === SELECT HAND === */
 function selectHand(i) {
@@ -186,7 +196,6 @@ function selectHand(i) {
 /* === TAKE BUTTON === */
 function takeCardManually() {
   if (gameState.turn !== playerIndex) return;
-  if (!gameState.table.length) return;
   socket.emit("take-one",{roomId,playerIndex});
 }
 
