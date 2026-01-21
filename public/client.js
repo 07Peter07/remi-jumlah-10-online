@@ -7,7 +7,20 @@ let playerIndex = null;
 let gameState = null;
 let selectedHand = null;
 
-/* === JOIN ROOM === */
+/* === MAPPING SUIT → FILE === */
+function suitLetter(s) {
+  if (s === "♠") return "S";
+  if (s === "♥") return "H";
+  if (s === "♦") return "D";
+  if (s === "♣") return "C";
+}
+
+/* === FILENAME KARTU === */
+function fileName(c) {
+  return `${c.v}${suitLetter(c.s)}.svg`;
+}
+
+/* === JOIN === */
 function join() {
   roomId = document.getElementById("room").value;
   const players = Number(document.getElementById("players").value);
@@ -16,167 +29,57 @@ function join() {
 
 socket.on("joined", data => {
   playerIndex = data.playerIndex;
-
-  const joinUI = document.getElementById("join");
-  const gameUI = document.getElementById("game");
-  const takeBtn = document.getElementById("takeBtn");
-
-  if (joinUI) joinUI.style.display = "none";
-  if (gameUI) gameUI.style.display = "block";
-  if (takeBtn) takeBtn.onclick = takeCardManually;
+  document.getElementById("join").style.display = "none";
+  document.getElementById("game").style.display = "block";
+  document.getElementById("takeBtn").onclick = takeCardManually;
 });
 
-/* === UPDATE GAME STATE === */
+/* === RECEIVE UPDATE === */
 socket.on("update", state => {
   gameState = state;
   render();
 });
 
-/* === RENDER ROOT === */
+/* === ROOT RENDER === */
 function render() {
   if (!gameState) return;
 
-  const turnEl = document.getElementById("turn");
-  const deckEl = document.getElementById("deckCount");
+  document.getElementById("turn").innerText =
+    (gameState.turn === playerIndex ? "KAMU" : "Pemain " + (gameState.turn + 1));
 
-  if (turnEl) turnEl.innerText = (gameState.turn === playerIndex ? "KAMU" : "Pemain " + (gameState.turn+1));
-  if (deckEl) deckEl.innerText = gameState.deckCount;
+  document.getElementById("deckCount").innerText = gameState.deckCount;
 
   placePlayersUI();
+  renderCaptured();
   renderTable();
   renderHand();
   renderScore();
 }
 
-/* === RENDER HAND === */
-function renderHand() {
-  const handDiv = document.getElementById("hand");
-  if (!handDiv) return;
-
-  handDiv.innerHTML = "";
-  const me = gameState.players[playerIndex];
-
-  me.hand.forEach((c, i) => {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerText = c.v + c.s;
-    div.onclick = () => selectHand(i);
-    if (selectedHand === i) div.style.boxShadow = "0 0 8px gold";
-    handDiv.appendChild(div);
-  });
-}
-
-/* === PLAYERS POSITION === */
-function placePlayersUI() {
-  const total = gameState.players.length;
-
-  const slotMap = {
-    2: ["player-top","player-bottom"],
-    3: ["player-top","player-left","player-right"],
-    4: ["player-top","player-right","player-bottom","player-left"]
-  };
-
-  const capMap = {
-    2: ["captured-top","captured-bottom"],
-    3: ["captured-top","captured-left","captured-right"],
-    4: ["captured-top","captured-right","captured-bottom","captured-left"]
-  };
-
-  [...document.querySelectorAll(".player-slot")].forEach(el=>{
-    el.style.display="none";
-    el.innerHTML="";
-  });
-
-  [...document.querySelectorAll(".captured-slot")].forEach(el=>{
-    el.style.display="none";
-    el.innerHTML="";
-  });
-
-  if (!slotMap[total]) return;
-
-  slotMap[total].forEach((slotId,i)=>{
-    drawPlayer(i, slotId);
-    renderCaptured(i, capMap[total][i]);
-  });
-}
-
-/* === RENDER PLAYER SLOT === */
-function drawPlayer(i, slotId) {
-  const slot = document.getElementById(slotId);
-  const p = gameState.players[i];
-
-  slot.style.display = "block";
-
-  let html = `<div class="player-name">
-  ${i===playerIndex ? "Kamu" : "Pemain "+(i+1)}
-  ${gameState.turn===i ? " 🔥" : ""}
-  </div>`;
-
-
-  html += `<div class="cards">`;
-
-  if (i === playerIndex) {
-    p.hand.forEach((c,idx)=>{
-      html += `<div class="card ${selectedHand===idx?"selected":""}"
-        onclick="selectHand(${idx})">${c.v}${c.s}</div>`;
-    });
-  } else {
-    p.hand.forEach(()=>{
-      html += `<div class="card back">🂠</div>`;
-    });
-  }
-
-  html += `</div>`;
-  slot.innerHTML = html;
-}
-
-/* === RENDER CAPTURED SET === */
-function renderCaptured(i, slotId) {
-  const slot = document.getElementById(slotId);
-  const p = gameState.players[i];
-
-  if (!slot || !p.captured || p.captured.length === 0) return;
-
-  slot.style.display = "block";
-  slot.innerHTML = `<div style="margin-bottom:4px;font-size:12px;">Menangkap:</div>`;
-
-  const wrap = document.createElement("div");
-  wrap.className = "cards";
-
-  p.captured.forEach(c=>{
-    const div=document.createElement("div");
-    div.className="card";
-    div.innerText=`${c.v}${c.s}`;
-    wrap.appendChild(div);
-  });
-
-  slot.appendChild(wrap);
-}
-
-/* === TABLE RENDER === */
+/* ===========================================
+   TABLE AREA
+=========================================== */
 function renderTable() {
   const table = document.getElementById("table");
   table.innerHTML = "";
-  gameState.table.forEach((c,i)=>{
-    const div=document.createElement("div");
-    div.className="card table";
-    div.innerText=c.v+c.s;
-    div.onclick=()=>handleTableClick(i);
-    table.appendChild(div);
+
+  gameState.table.forEach((c, i) => {
+    const img = document.createElement("img");
+    img.src = `/cards/${fileName(c)}`;
+    img.className = "card-img table-card";
+    img.onclick = () => handleTable(i);
+    table.appendChild(img);
   });
 }
 
-/* === CLICK TABLE === */
-function handleTableClick(i) {
+function handleTable(i) {
   if (gameState.turn !== playerIndex) return;
 
-  // Jika tidak pilih kartu → ambil kartu
   if (selectedHand === null) {
     socket.emit("take-one", { roomId, playerIndex });
     return;
   }
 
-  // Mode pairing
   socket.emit("play", {
     roomId,
     playerIndex,
@@ -187,26 +90,130 @@ function handleTableClick(i) {
   selectedHand = null;
 }
 
+/* ===========================================
+   PLAYER UI MAPPING (2,3,4 Player)
+=========================================== */
+function placePlayersUI() {
+  const total = gameState.players.length;
 
-/* === SELECT HAND === */
+  const map = {
+    2: ["player-top", "player-bottom"],
+    3: ["player-top", "player-left", "player-right"],
+    4: ["player-top", "player-right", "player-bottom", "player-left"]
+  };
+
+  ["player-top","player-bottom","player-left","player-right"].forEach(id=>{
+    const slot = document.getElementById(id);
+    slot.innerHTML = "";
+    slot.style.display = "none";
+  });
+
+  map[total].forEach((slotId, idx) => {
+    const slot = document.getElementById(slotId);
+    const p = gameState.players[idx];
+
+    slot.style.display = "block";
+
+    let html = `<div class="player-name">
+      ${idx === playerIndex ? "Kamu" : ("Pemain "+(idx+1))}
+      ${gameState.turn === idx ? "🔥" : ""}
+    </div>`;
+
+    html += `<div class="cards">`;
+
+    p.hand.forEach((c, i) => {
+      if (idx === playerIndex) {
+        html += `<img src="/cards/${fileName(c)}" class="card-img small-card" onclick="selectHand(${i})">`;
+      } else {
+        html += `<img src="/cards/BACK.svg" class="card-img back-card">`;
+      }
+    });
+
+    html += `</div>`;
+    slot.innerHTML = html;
+  });
+}
+
+/* ===========================================
+   HAND (PLAYER BOTTOM)
+=========================================== */
+function renderHand() {
+  const hand = document.getElementById("hand");
+  hand.innerHTML = "";
+
+  const me = gameState.players[playerIndex];
+
+  me.hand.forEach((c, i) => {
+    const img = document.createElement("img");
+    img.src = `/cards/${fileName(c)}`;
+    img.className = "card-img hand-card";
+    img.style.border = (selectedHand === i ? "3px solid yellow" : "2px solid transparent");
+    img.onclick = () => selectHand(i);
+    hand.appendChild(img);
+  });
+}
+
 function selectHand(i) {
   selectedHand = i;
   render();
 }
 
-/* === TAKE BUTTON === */
-function takeCardManually() {
-  if (gameState.turn !== playerIndex) return;
-  socket.emit("take-one",{roomId,playerIndex});
+/* ===========================================
+   CAPTURED AREA PER PLAYER
+=========================================== */
+function renderCaptured() {
+  const total = gameState.players.length;
+
+  const capMap = {
+    2: ["captured-top","captured-bottom"],
+    3: ["captured-top","captured-left","captured-right"],
+    4: ["captured-top","captured-right","captured-bottom","captured-left"]
+  };
+
+  ["captured-top","captured-bottom","captured-left","captured-right"].forEach(id=>{
+    const slot = document.getElementById(id);
+    slot.innerHTML = "";
+    slot.style.display = "none";
+  });
+
+  capMap[total].forEach((slotId, idx) => {
+    const slot = document.getElementById(slotId);
+    const p = gameState.players[idx];
+
+    if (p.captured.length === 0) return;
+
+    slot.style.display = "block";
+    slot.innerHTML = `<div class="captured-title">Menangkap:</div><div class="cards"></div>`;
+
+    const wrap = slot.querySelector(".cards");
+
+    p.captured.forEach(c => {
+      const img = document.createElement("img");
+      img.src = `/cards/${fileName(c)}`;
+      img.className = "card-img tiny-card";
+      wrap.appendChild(img);
+    });
+  });
 }
 
-/* === SCORE === */
+/* ===========================================
+   TAKE BUTTON
+=========================================== */
+function takeCardManually() {
+  if (gameState.turn !== playerIndex) return;
+  socket.emit("take-one", { roomId, playerIndex });
+}
+
+/* ===========================================
+   SCORE BOARD
+=========================================== */
 function renderScore() {
-  const scoreDiv=document.getElementById("score");
-  scoreDiv.innerHTML="";
-  gameState.players.forEach((p,i)=>{
-    const li=document.createElement("li");
-    li.innerText=`Pemain ${i+1}: ${p.score}`;
-    scoreDiv.appendChild(li);
+  const div = document.getElementById("score");
+  div.innerHTML = "";
+
+  gameState.players.forEach((p, i) => {
+    const li = document.createElement("li");
+    li.innerText = `Pemain ${i+1}: ${p.score}`;
+    div.appendChild(li);
   });
 }

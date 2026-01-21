@@ -6,20 +6,19 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-
   <link rel="stylesheet" href="/style.css">
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 
-  <h2>MERAH</h2>
+  <h2 style="margin-bottom:5px;">REM I MERAH</h2>
 
   <!-- JOIN -->
   <div id="join">
     <input id="room" placeholder="Nama Room">
     <select id="players">
       <option value="2">2 Pemain</option>
-      <option value="3" selected>3 Pemain</option>
+      <option value="3">3 Pemain</option>
       <option value="4">4 Pemain</option>
     </select>
     <button onclick="join()">Join</button>
@@ -28,47 +27,31 @@
   <!-- GAME -->
   <div id="game" style="display:none">
 
-    <div id="infoBar" style="margin-bottom:10px;">
-      Giliran: <b id="turn">-</b> |
-      Sisa Kartu: <b id="deckCount">-</b>
+    <div id="infoBar" class="info-bar">
+      Giliran: <b id="turn">-</b> | Sisa Kartu: <b id="deckCount">-</b>
     </div>
 
     <button id="takeBtn">Ambil Kartu</button>
 
-    <div id="poker-table">
+    <!-- BOARD -->
+    <div id="board">
 
-      <!-- PLAYER SLOTS -->
+      <!-- MEJA -->
+      <div id="table-area">
+        <h3 style="margin:0;">Meja</h3>
+        <div id="table" class="cards"></div>
+      </div>
+
+      <!-- PEMAIN -->
       <div id="player-top" class="player-slot"></div>
       <div id="player-right" class="player-slot"></div>
       <div id="player-bottom" class="player-slot"></div>
       <div id="player-left" class="player-slot"></div>
 
-      <!-- CAPTURED SLOTS -->
-      <div id="captured-top" class="captured-slot"></div>
-      <div id="captured-right" class="captured-slot"></div>
-      <div id="captured-bottom" class="captured-slot"></div>
-      <div id="captured-left" class="captured-slot"></div>
-
-      <!-- TABLE -->
-      <div id="center-table">
-        <h3 style="margin:0;">Meja</h3>
-        <div id="table" class="cards" style="margin-top:6px;"></div>
-      </div>
-
     </div>
 
-    <div id="board">
-  <div id="table-area">
-    <h3>Meja</h3>
-    <div id="table" class="cards"></div>
-  </div>
-
-  <div id="player-top" class="player-slot"></div>
-  <div id="player-bottom" class="player-slot"></div>
-</div>
-
-<h3 style="margin-top:10px;">Tangan Kamu</h3>
-<div id="hand" class="cards"></div>
+    <h3 style="margin-top:10px;">Tangan Kamu</h3>
+    <div id="hand" class="cards"></div>
 
     <h3 style="margin-top:10px;">Skor</h3>
     <ul id="score"></ul>

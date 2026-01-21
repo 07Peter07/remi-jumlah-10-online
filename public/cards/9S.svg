@@ -1,0 +1,9 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="200" viewBox="0 0 140 200">
+  <rect x="2" y="2" width="136" height="196" rx="12" ry="12" fill="white" stroke="black" stroke-width="2"/>
+  <text x="10" y="26" font-size="22" font-weight="bold" fill="black">9</text>
+  <text x="10" y="50" font-size="22" font-weight="bold" fill="black">♠</text>
+  <text x="130" y="26" font-size="22" font-weight="bold" fill="black" text-anchor="end">9</text>
+  <text x="130" y="50" font-size="22" font-weight="bold" fill="black" text-anchor="end">♠</text>
+  <text x="70" y="120" font-size="60" text-anchor="middle" fill="black">♠</text>
+</svg>
