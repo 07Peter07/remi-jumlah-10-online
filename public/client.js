@@ -117,12 +117,14 @@ function renderPlayers() {
     html += `<div class="cards">`;
 
     p.hand.forEach((c,i)=>{
-      if (idx===playerIndex) {
-        html += `<img src="/cards/${fileName(c)}" class="card-img-small">`;
-      } else {
-        html += `<img src="/cards/BACK.svg" class="back-img">`;
-      }
-    });
+  if (idx === playerIndex) {
+    // tampilkan kartu asli kita
+    html += `<img src="/cards/${fileName(c)}" class="card-img" onclick="selectHand(${i})">`;
+  } else {
+    // tampilkan kartu back untuk lawan
+    html += `<img src="/cards/back.svg" class="card-img back">`;
+  }
+});
 
     html += `</div>`;
     slot.innerHTML = html;
