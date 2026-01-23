@@ -122,7 +122,7 @@ function renderPlayers() {
     html += `<img src="/cards/${fileName(c)}" class="card-img" onclick="selectHand(${i})">`;
   } else {
     // tampilkan kartu back untuk lawan
-    html += `<img src="/cards/back.svg" class="card-img back">`;
+    html += `<img src="/cards/BACK.svg" class="card-img back">`;
   }
 });
 
