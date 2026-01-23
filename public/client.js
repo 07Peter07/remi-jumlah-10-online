@@ -206,9 +206,16 @@ function renderHand() {
 function renderCaptured(i, slotId) {
   const slot = document.getElementById(slotId);
   const p = gameState.players[i];
-  if (!slot || !p.captured || p.captured.length === 0) return;
 
-  slot.innerHTML = `<div style="margin-bottom:4px;">Menangkap:</div>`;
+  if (!slot) return;
+  slot.innerHTML = "";
+
+  if (!p.captured || p.captured.length === 0) return;
+
+  const title = document.createElement("div");
+  title.innerText = "Menangkap:";
+  slot.appendChild(title);
+
   const wrap = document.createElement("div");
   wrap.className = "cards";
 
@@ -221,6 +228,7 @@ function renderCaptured(i, slotId) {
 
   slot.appendChild(wrap);
 }
+
 
 /* === PILIH KARTU === */
 function selectHand(i) {
