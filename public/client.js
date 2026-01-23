@@ -185,7 +185,7 @@ if (capMap[total]) {
     html += `<img src="/cards/${fileName(c)}" class="card-img" onclick="selectHand(${i})">`;
   } else {
     // ini pemain lain — tampilkan belakang kartu
-    html += `<img src="/cards/BACK.png" class="card-img back">`;
+    html += `<img src="/cards/BACK.svg" class="card-img back">`;
   }
 });
 
