@@ -61,13 +61,13 @@ body {
 }
 
 #table {
-  display: flex;
-  gap: 5px;
-  margin-top: 4px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 72px);
+  grid-auto-rows: 100px;
+  gap: 6px;
   justify-content: center;
-  max-width: 360px;
 }
+
 
 #score {
   list-style: none;

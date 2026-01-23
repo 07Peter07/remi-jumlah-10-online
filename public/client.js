@@ -51,7 +51,6 @@ function render() {
 
   placePlayersUI();
   renderTable();
-  renderHand();
   renderScore();
 }
 
@@ -118,11 +117,7 @@ function renderPlayers() {
     html += `<div class="cards">`;
 
     p.hand.forEach((c,i)=>{
-      if (idx===playerIndex) {
-        html += `<img src="/cards/${fileName(c)}" class="card-img-small">`;
-      } else {
-        html += `<img src="/cards/BACK.svg" class="back-img">`;
-      }
+      html += `<img src="/cards/BACK.svg" class="back-img">`;
     });
 
     html += `</div>`;
@@ -180,11 +175,12 @@ if (capMap[total]) {
 
     p.hand.forEach((c,i)=>{
   if (idx === playerIndex) {
-    html += `<img src="/cards/${fileName(c)}" class="card-img" onclick="selectHand(${i})">`;
+    html += `<img src="/cards/BACK.svg" class="card-img back">`;
   } else {
     html += `<img src="/cards/BACK.svg" class="card-img back">`;
   }
-});
+
+  });
 
 
     html += `</div>`;
