@@ -24,7 +24,7 @@ function join() {
 
 socket.on("joined", data => {
   playerIndex = data.playerIndex;
-  onsole.log("PLAYER INDEX:", playerIndex);
+  console.log("PLAYER INDEX:", playerIndex);
   document.getElementById("join").style.display = "none";
   document.getElementById("game").style.display = "block";
 
