@@ -121,7 +121,7 @@ function renderPlayers() {
       if (idx===playerIndex) {
         html += `<img src="/cards/${fileName(c)}" class="card-img-small">`;
       } else {
-        html += `<img src="/cards/back.svg" class="back-img">`;
+        html += `<img src="/cards/BACK.svg" class="back-img">`;
       }
     });
 
@@ -148,9 +148,13 @@ function placePlayersUI() {
   4:["captured-top","captured-right","captured-bottom","captured-left"]
 };
 
-capMap[total].forEach((slotId,i)=>{
-  renderCaptured(i, slotId);
-});
+if (capMap[total]) {
+  capMap[total].forEach((slotId,i)=>{
+    renderCaptured(i, slotId);
+  });
+}
+
+
 
   // hide dulu semua
   ["player-top","player-bottom","player-left","player-right"].forEach(id=>{
@@ -177,7 +181,7 @@ capMap[total].forEach((slotId,i)=>{
       if (idx === playerIndex) {
         html += `<img src="/cards/${fileName(c)}" class="card-img" onclick="selectHand(${i})">`;
       } else {
-        html += `<img src="/cards/back.svg" class="back-img">`;
+        html += `<img src="/cards/BACK.svg" class="back-img">`;
       }
     });
 
