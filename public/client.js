@@ -175,15 +175,17 @@ if (capMap[total]) {
     slot.style.display="block";
 
     let html = `<div>${idx===playerIndex?"Kamu":"Pemain "+(idx+1)} ${gameState.turn===idx?"🔥":""}</div>`;
-    html += `<div class="cards">`;
+    html += `<div class="hand-row">`;  // biar layout horizontal
+
 
     p.hand.forEach((c,i)=>{
-      if (idx === playerIndex) {
-        html += `<img src="/cards/${fileName(c)}" class="card-img" onclick="selectHand(${i})">`;
-      } else {
-        html += `<img src="/cards/BACK.svg" class="back-img">`;
-      }
-    });
+  if (idx === playerIndex) {
+    html += `<img src="/cards/${fileName(c)}" class="card-img" onclick="selectHand(${i})">`;
+  } else {
+    html += `<img src="/cards/BACK.svg" class="card-img back">`;
+  }
+});
+
 
     html += `</div>`;
     slot.innerHTML = html;
