@@ -24,7 +24,7 @@ function join() {
 
 socket.on("joined", data => {
   playerIndex = data.playerIndex;
-
+  onsole.log("PLAYER INDEX:", playerIndex);
   document.getElementById("join").style.display = "none";
   document.getElementById("game").style.display = "block";
 
@@ -33,13 +33,16 @@ socket.on("joined", data => {
 
 /* === UPDATE STATE DARI SERVER === */
 socket.on("update", state => {
+  if (playerIndex === null) return;
   gameState = state;
   render();
 });
 
 /* === RENDER ROOT === */
 function render() {
-  if (!gameState || !gameState.players) return;
+  if (!gameState) return;
+  if (playerIndex === null) return; // TAMBAH INI
+
   if (!Array.isArray(gameState.players)) return;
   
   const turnEl = document.getElementById("turn");
@@ -201,8 +204,9 @@ function renderHand() {
   const handDiv = document.getElementById("hand");
   handDiv.innerHTML = "";
 
+  if (playerIndex === null) return;
   const me = gameState.players[playerIndex];
-
+  if (!me) return;
   me.hand.forEach((c,i)=>{
     const img = document.createElement("img");
     img.src = `/cards/${fileName(c)}`;
