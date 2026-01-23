@@ -179,14 +179,16 @@ if (capMap[total]) {
     html += `<div class="hand-row">`;  // biar layout horizontal
 
 
-    p.hand.forEach((c,i)=>{
+    p.hand.forEach((c, i) => {
   if (idx === playerIndex) {
-    html += `<img src="/cards/BACK.svg" class="card-img back">`;
+    // ini tangan kamu — tampilkan kartu asli
+    html += `<img src="/cards/${fileName(c)}" class="card-img" onclick="selectHand(${i})">`;
   } else {
-    html += `<img src="/cards/BACK.svg" class="card-img back">`;
+    // ini pemain lain — tampilkan belakang kartu
+    html += `<img src="/cards/BACK.png" class="card-img back">`;
   }
+});
 
-  });
 
 
     html += `</div>`;
