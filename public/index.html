@@ -12,51 +12,55 @@
 </head>
 <body>
 
-  <h2 style="margin-top:10px; margin-bottom:5px;">REMI MERAH</h2>
+  <h2 id="title">REM I MERAH</h2>
 
-  <!-- JOIN SCREEN -->
+  <!-- JOIN -->
   <div id="join">
-    <input id="room" placeholder="Nama Room" style="padding:6px;">
-    <select id="players" style="padding:6px;">
+    <input id="room" placeholder="Nama Room">
+    <select id="players">
       <option value="2">2 Pemain</option>
       <option value="3">3 Pemain</option>
-      <option value="4" selected>4 Pemain</option>
+      <option value="4">4 Pemain</option>
     </select>
-    <button onclick="join()" style="padding:6px 12px;">Join</button>
+    <button onclick="join()">Join</button>
   </div>
 
-  <!-- GAME SCREEN -->
-  <div id="game" style="display:none; padding-top:10px;">
+  <!-- GAME -->
+  <div id="game" style="display:none">
 
-    <!-- INFO BAR -->
-    <div id="infoBar" style="margin-bottom:10px;">
-      Giliran: <b id="turn">-</b> |
-      Sisa Kartu: <b id="deckCount">-</b>
+    <div id="infoBar" class="info-bar">
+      Giliran: <b id="turn">-</b> | Sisa Kartu: <b id="deckCount">-</b>
     </div>
 
     <button id="takeBtn">Ambil Kartu</button>
 
-    <!-- TABLE AREA -->
-    <div id="poker-table">
-    <div id="center-table">
-      <h3 style="margin:0;">Meja</h3>
-      <div id="table" class="cards"></div>
-    </div>
+    <!-- BOARD -->
+    <div id="board">
 
+  <!-- MEJA -->
+  <div id="table-area">
+    <h3 style="margin:0;">Meja</h3>
+    <div id="table" class="cards"></div>
+  </div>
+
+  <!-- PEMAIN -->
   <div id="player-top" class="player-slot"></div>
   <div id="player-right" class="player-slot"></div>
   <div id="player-bottom" class="player-slot"></div>
   <div id="player-left" class="player-slot"></div>
+
+  <div id="captured-top" class="captured-slot"></div>
+  <div id="captured-right" class="captured-slot"></div>
+  <div id="captured-bottom" class="captured-slot"></div>
+  <div id="captured-left" class="captured-slot"></div>
+
 </div>
 
+<h3 style="margin-top:10px;">Tangan Kamu</h3>
+<div id="hand" class="cards"></div>
 
-    <!-- YOUR HAND -->
-    <h3 style="margin-top:15px;">Tangan Kamu</h3>
-    <div id="hand"></div>
-
-    <!-- SCORE -->
-    <h3 style="margin-top:12px;">Skor</h3>
-    <ul id="score"></ul>
+<h3 style="margin-top:10px;">Skor</h3>
+<ul id="score"></ul>
 
   </div>
 
