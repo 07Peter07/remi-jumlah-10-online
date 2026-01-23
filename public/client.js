@@ -7,80 +7,77 @@ let playerIndex = null;
 let gameState = null;
 let selectedHand = null;
 
-/* === MAPPING SUIT → FILE === */
-function suitLetter(s) {
-  if (s === "♠") return "S";
-  if (s === "♥") return "H";
-  if (s === "♦") return "D";
-  if (s === "♣") return "C";
-}
-
-/* === FILENAME KARTU === */
+/* --- UTILITY FILE NAME KARTU --- */
 function fileName(c) {
-  return `${c.v}${suitLetter(c.s)}.svg`;
+  const suitMap = { "♠":"S", "♥":"H", "♦":"D", "♣":"C" };
+  return `${c.v}${suitMap[c.s]}.png`;
 }
 
-/* === JOIN === */
+/* === JOIN ROOM === */
 function join() {
-  roomId = document.getElementById("room").value;
+  roomId = document.getElementById("room").value.trim();
   const players = Number(document.getElementById("players").value);
+
+  if (!roomId) return alert("Masukkan nama room!");
   socket.emit("join-room", { roomId, players });
 }
 
 socket.on("joined", data => {
   playerIndex = data.playerIndex;
+
   document.getElementById("join").style.display = "none";
   document.getElementById("game").style.display = "block";
+
   document.getElementById("takeBtn").onclick = takeCardManually;
 });
 
-/* === RECEIVE UPDATE === */
+/* === UPDATE STATE DARI SERVER === */
 socket.on("update", state => {
   gameState = state;
   render();
 });
 
-/* === ROOT RENDER === */
+/* === RENDER ROOT === */
 function render() {
   if (!gameState) return;
 
   document.getElementById("turn").innerText =
-    (gameState.turn === playerIndex ? "KAMU" : "Pemain " + (gameState.turn + 1));
+    (gameState.turn === playerIndex ? "KAMU" : "Pemain "+(gameState.turn+1));
 
   document.getElementById("deckCount").innerText = gameState.deckCount;
 
-  placePlayersUI();
-  renderCaptured();
+  renderPlayers();
   renderTable();
   renderHand();
   renderScore();
 }
 
-/* ===========================================
-   TABLE AREA
-=========================================== */
+/* --- RENDER TABLE --- */
 function renderTable() {
-  const table = document.getElementById("table");
-  table.innerHTML = "";
+  const tableDiv = document.getElementById("table");
+  tableDiv.innerHTML = "";
 
-  gameState.table.forEach((c, i) => {
+  gameState.table.forEach((c,i)=>{
     const img = document.createElement("img");
     img.src = `/cards/${fileName(c)}`;
-    img.className = "card-img table-card";
-    img.onclick = () => handleTable(i);
-    table.appendChild(img);
+    img.className = "card-img";
+    img.onclick = ()=>handleTableClick(i);
+    tableDiv.appendChild(img);
   });
 }
 
-function handleTable(i) {
+/* === LOGIC KLIK MEJA === */
+function handleTableClick(i) {
   if (gameState.turn !== playerIndex) return;
 
+  // tidak pilih kartu → ambil
   if (selectedHand === null) {
-    socket.emit("take-one", { roomId, playerIndex });
+    socket.emit("take-one",{ roomId, playerIndex });
     return;
   }
 
-  socket.emit("play", {
+  // pairing
+  socket.emit("play",{
     roomId,
     playerIndex,
     handIndex: selectedHand,
@@ -90,42 +87,37 @@ function handleTable(i) {
   selectedHand = null;
 }
 
-/* ===========================================
-   PLAYER UI MAPPING (2,3,4 Player)
-=========================================== */
-function placePlayersUI() {
+/* === RENDER PEMAIN (TOP/LEFT/RIGHT/BOTTOM) === */
+function renderPlayers() {
   const total = gameState.players.length;
 
   const map = {
-    2: ["player-top", "player-bottom"],
-    3: ["player-top", "player-left", "player-right"],
-    4: ["player-top", "player-right", "player-bottom", "player-left"]
+    2:["player-top","player-bottom"],
+    3:["player-top","player-left","player-right"],
+    4:["player-top","player-right","player-bottom","player-left"]
   };
 
-  ["player-top","player-bottom","player-left","player-right"].forEach(id=>{
-    const slot = document.getElementById(id);
-    slot.innerHTML = "";
-    slot.style.display = "none";
+  ["player-top","player-right","player-bottom","player-left"].forEach(id=>{
+    document.getElementById(id).style.display="none";
+    document.getElementById(id).innerHTML="";
   });
 
-  map[total].forEach((slotId, idx) => {
+  map[total].forEach((slotId, idx)=>{
     const slot = document.getElementById(slotId);
     const p = gameState.players[idx];
-
     slot.style.display = "block";
 
-    let html = `<div class="player-name">
-      ${idx === playerIndex ? "Kamu" : ("Pemain "+(idx+1))}
-      ${gameState.turn === idx ? "🔥" : ""}
-    </div>`;
+    let html = `<div style="margin-bottom:3px;">${
+      idx===playerIndex?"Kamu":"Pemain "+(idx+1)
+    } ${gameState.turn===idx?"🔥":""}</div>`;
 
     html += `<div class="cards">`;
 
-    p.hand.forEach((c, i) => {
-      if (idx === playerIndex) {
-        html += `<img src="/cards/${fileName(c)}" class="card-img small-card" onclick="selectHand(${i})">`;
+    p.hand.forEach((c,i)=>{
+      if (idx===playerIndex) {
+        html += `<img src="/cards/${fileName(c)}" class="card-img-small">`;
       } else {
-        html += `<img src="/cards/BACK.svg" class="card-img back-card">`;
+        html += `<img src="/cards/back.png" class="back-img">`;
       }
     });
 
@@ -134,86 +126,42 @@ function placePlayersUI() {
   });
 }
 
-/* ===========================================
-   HAND (PLAYER BOTTOM)
-=========================================== */
+/* === RENDER KARTU TANGAN UTAMA (PALING BAWAH) === */
 function renderHand() {
-  const hand = document.getElementById("hand");
-  hand.innerHTML = "";
+  const handDiv = document.getElementById("hand");
+  handDiv.innerHTML = "";
 
   const me = gameState.players[playerIndex];
 
-  me.hand.forEach((c, i) => {
+  me.hand.forEach((c,i)=>{
     const img = document.createElement("img");
     img.src = `/cards/${fileName(c)}`;
-    img.className = "card-img hand-card";
-    img.style.border = (selectedHand === i ? "3px solid yellow" : "2px solid transparent");
-    img.onclick = () => selectHand(i);
-    hand.appendChild(img);
+    img.className = "card-img";
+    img.style.outline = selectedHand===i?"3px solid yellow":"none";
+    img.onclick = ()=>selectHand(i);
+    handDiv.appendChild(img);
   });
 }
 
+/* === PILIH KARTU === */
 function selectHand(i) {
   selectedHand = i;
   render();
 }
 
-/* ===========================================
-   CAPTURED AREA PER PLAYER
-=========================================== */
-function renderCaptured() {
-  const total = gameState.players.length;
-
-  const capMap = {
-    2: ["captured-top","captured-bottom"],
-    3: ["captured-top","captured-left","captured-right"],
-    4: ["captured-top","captured-right","captured-bottom","captured-left"]
-  };
-
-  ["captured-top","captured-bottom","captured-left","captured-right"].forEach(id=>{
-    const slot = document.getElementById(id);
-    slot.innerHTML = "";
-    slot.style.display = "none";
-  });
-
-  capMap[total].forEach((slotId, idx) => {
-    const slot = document.getElementById(slotId);
-    const p = gameState.players[idx];
-
-    if (p.captured.length === 0) return;
-
-    slot.style.display = "block";
-    slot.innerHTML = `<div class="captured-title">Menangkap:</div><div class="cards"></div>`;
-
-    const wrap = slot.querySelector(".cards");
-
-    p.captured.forEach(c => {
-      const img = document.createElement("img");
-      img.src = `/cards/${fileName(c)}`;
-      img.className = "card-img tiny-card";
-      wrap.appendChild(img);
-    });
-  });
-}
-
-/* ===========================================
-   TAKE BUTTON
-=========================================== */
+/* === AMBIL KARTU MANUAL === */
 function takeCardManually() {
   if (gameState.turn !== playerIndex) return;
-  socket.emit("take-one", { roomId, playerIndex });
+  socket.emit("take-one",{ roomId, playerIndex });
 }
 
-/* ===========================================
-   SCORE BOARD
-=========================================== */
+/* === SKOR === */
 function renderScore() {
-  const div = document.getElementById("score");
-  div.innerHTML = "";
-
-  gameState.players.forEach((p, i) => {
+  const list = document.getElementById("score");
+  list.innerHTML = "";
+  gameState.players.forEach((p,i)=>{
     const li = document.createElement("li");
     li.innerText = `Pemain ${i+1}: ${p.score}`;
-    div.appendChild(li);
+    list.appendChild(li);
   });
 }
