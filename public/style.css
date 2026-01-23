@@ -126,6 +126,9 @@ body {
   user-select: none;
 }
 
+.card-img.selected {
+  outline: 3px solid yellow !important;
+}
 
 .card-img:hover {
   transform: translateY(-8px);

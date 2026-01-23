@@ -54,6 +54,7 @@ function render() {
 
   placePlayersUI();
   renderTable();
+  renderHand(); 
   renderScore();
 }
 
