@@ -8,6 +8,7 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
+app.use("/cards", express.static(__dirname + "/public/cards"));
 app.use(express.static("public"));
 
 // ===========================
