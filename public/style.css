@@ -87,11 +87,33 @@ body {
 
 /* TABLE CENTER */
 #center-table {
-  position: absolute;
+  position:relative;
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  left:50%;
+  transform:translate(-50%, -50%);
+  z-index: 5;
+  text-align:center;
 }
+
+.card-img {
+  width: 72px;
+  height: 100px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.back-img {
+  width: 72px;
+  height: 100px;
+}
+
+.player-slot {
+  position:absolute;
+  text-align:center;
+  width:200px;
+  z-index:3;
+}
+
 
 /****************************************
  POSITIONS FOR 2 / 3 / 4 PLAYERS
