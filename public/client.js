@@ -117,7 +117,11 @@ function renderPlayers() {
     html += `<div class="cards">`;
 
     p.hand.forEach((c,i)=>{
-      html += `<img src="/cards/BACK.svg" class="back-img">`;
+      if (idx===playerIndex) {
+        html += `<img src="/cards/${fileName(c)}" class="card-img-small">`;
+      } else {
+        html += `<img src="/cards/BACK.svg" class="back-img">`;
+      }
     });
 
     html += `</div>`;
