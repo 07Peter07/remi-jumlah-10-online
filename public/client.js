@@ -39,18 +39,22 @@ socket.on("update", state => {
 
 /* === RENDER ROOT === */
 function render() {
-  if (!gameState) return;
+  if (!gameState || !gameState.players) return;
+  if (!Array.isArray(gameState.players)) return;
+  
+  const turnEl = document.getElementById("turn");
+  const deckEl = document.getElementById("deckCount");
+  if (!turnEl || !deckEl) return;
 
-  document.getElementById("turn").innerText =
-    (gameState.turn === playerIndex ? "KAMU" : "Pemain "+(gameState.turn+1));
+  turnEl.innerText = (gameState.turn === playerIndex ? "KAMU" : "Pemain "+(gameState.turn+1));
+  deckEl.innerText = gameState.deckCount;
 
-  document.getElementById("deckCount").innerText = gameState.deckCount;
-
-  renderPlayers();
+  placePlayersUI();
   renderTable();
   renderHand();
   renderScore();
 }
+
 
 /* --- RENDER TABLE --- */
 function renderTable() {
@@ -126,6 +130,62 @@ function renderPlayers() {
   });
 }
 
+/*seating System*/
+function placePlayersUI() {
+  if (!gameState.players) return;
+
+  const total = gameState.players.length;
+
+  const map = {
+    2:["player-top","player-bottom"],
+    3:["player-top","player-left","player-right"],
+    4:["player-top","player-right","player-bottom","player-left"]
+  };
+
+  const capMap = {
+  2:["captured-top","captured-bottom"],
+  3:["captured-top","captured-left","captured-right"],
+  4:["captured-top","captured-right","captured-bottom","captured-left"]
+};
+
+capMap[total].forEach((slotId,i)=>{
+  renderCaptured(i, slotId);
+});
+
+  // hide dulu semua
+  ["player-top","player-bottom","player-left","player-right"].forEach(id=>{
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.display="none";
+      el.innerHTML="";
+    }
+  });
+
+  if (!map[total]) return;
+
+  map[total].forEach((slotId, idx)=>{
+    const slot = document.getElementById(slotId);
+    if (!slot) return;
+    const p = gameState.players[idx];
+
+    slot.style.display="block";
+
+    let html = `<div>${idx===playerIndex?"Kamu":"Pemain "+(idx+1)} ${gameState.turn===idx?"🔥":""}</div>`;
+    html += `<div class="cards">`;
+
+    p.hand.forEach((c,i)=>{
+      if (idx === playerIndex) {
+        html += `<img src="/cards/${fileName(c)}" class="card-img" onclick="selectHand(${i})">`;
+      } else {
+        html += `<img src="/cards/back.png" class="back-img">`;
+      }
+    });
+
+    html += `</div>`;
+    slot.innerHTML = html;
+  });
+}
+
 /* === RENDER KARTU TANGAN UTAMA (PALING BAWAH) === */
 function renderHand() {
   const handDiv = document.getElementById("hand");
@@ -141,6 +201,25 @@ function renderHand() {
     img.onclick = ()=>selectHand(i);
     handDiv.appendChild(img);
   });
+}
+
+function renderCaptured(i, slotId) {
+  const slot = document.getElementById(slotId);
+  const p = gameState.players[i];
+  if (!slot || !p.captured || p.captured.length === 0) return;
+
+  slot.innerHTML = `<div style="margin-bottom:4px;">Menangkap:</div>`;
+  const wrap = document.createElement("div");
+  wrap.className = "cards";
+
+  p.captured.forEach(c => {
+    const img = document.createElement("img");
+    img.src = `/cards/${fileName(c)}`;
+    img.className = "card-img small";
+    wrap.appendChild(img);
+  });
+
+  slot.appendChild(wrap);
 }
 
 /* === PILIH KARTU === */
