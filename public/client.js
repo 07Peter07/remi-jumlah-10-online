@@ -10,7 +10,7 @@ let selectedHand = null;
 /* --- UTILITY FILE NAME KARTU --- */
 function fileName(c) {
   const suitMap = { "♠":"S", "♥":"H", "♦":"D", "♣":"C" };
-  return `${c.v}${suitMap[c.s]}.png`;
+  return `${c.v}${suitMap[c.s]}.svg`;
 }
 
 /* === JOIN ROOM === */
@@ -121,7 +121,7 @@ function renderPlayers() {
       if (idx===playerIndex) {
         html += `<img src="/cards/${fileName(c)}" class="card-img-small">`;
       } else {
-        html += `<img src="/cards/back.png" class="back-img">`;
+        html += `<img src="/cards/back.svg" class="back-img">`;
       }
     });
 
@@ -132,7 +132,7 @@ function renderPlayers() {
 
 /*seating System*/
 function placePlayersUI() {
-  if (!gameState.players) return;
+  if (!gameState || !gameState.players) return;
 
   const total = gameState.players.length;
 
@@ -177,7 +177,7 @@ capMap[total].forEach((slotId,i)=>{
       if (idx === playerIndex) {
         html += `<img src="/cards/${fileName(c)}" class="card-img" onclick="selectHand(${i})">`;
       } else {
-        html += `<img src="/cards/back.png" class="back-img">`;
+        html += `<img src="/cards/back.svg" class="back-img">`;
       }
     });
 
