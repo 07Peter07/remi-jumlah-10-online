@@ -187,7 +187,7 @@ if (capMap[total]) {
     p.hand.forEach((c, i) => {
   if (idx === playerIndex) {
     // ini tangan kamu — tampilkan kartu asli
-    html += `<img src="/cards/${fileName(c)}" class="card-img" onclick="selectHand(${i})">`;
+    html += `<img src="/cards/${cardFile(c)}" class="card-img" onclick="selectHand(${i})">`;
   } else {
     // ini pemain lain — tampilkan belakang kartu
     html += `<img src="/cards/BACK.svg" class="card-img back">`;
@@ -219,6 +219,32 @@ function renderHand() {
   });
 }
 
+function renderCaptured(i, slotId) {
+  const slot = document.getElementById(slotId);
+  const p = gameState.players[i];
+
+  if (!slot) return;
+  slot.innerHTML = "";
+
+  if (!p.captured || p.captured.length === 0) return;
+
+  const title = document.createElement("div");
+  title.innerText = "Menangkap:";
+  slot.appendChild(title);
+
+  const wrap = document.createElement("div");
+  wrap.className = "cards";
+
+  p.captured.forEach(c => {
+    const img = document.createElement("img");
+    img.src = `/cards/${fileName(c)}`;
+    img.className = "card-img small";
+    wrap.appendChild(img);
+  });
+
+  slot.appendChild(wrap);
+}
+
 function renderCapturedForPlayer(i) {
   if (i !== playerIndex) return;
   const slot = document.getElementById("captured-me");
@@ -232,8 +258,6 @@ function renderCapturedForPlayer(i) {
     slot.appendChild(img);
   });
 }
-
-
 
 /* === PILIH KARTU === */
 function selectHand(i) {
