@@ -36,12 +36,11 @@
 
     <!-- BOARD -->
     <div id="board">
-
-  <!-- MEJA -->
-  <div id="table-area">
-    <h3 style="margin:0;">Meja</h3>
-    <div id="table" class="cards"></div>
-  </div>
+     <!-- MEJA -->
+      <div id="table-area">
+      <h3 style="margin:0;">Meja</h3>
+      <div id="table" class="cards"></div>
+     </div>
 
   <!-- PEMAIN -->
   <div id="player-top" class="player-slot"></div>
@@ -49,15 +48,20 @@
   <div id="player-bottom" class="player-slot"></div>
   <div id="player-left" class="player-slot"></div>
 
-  <div id="captured-top" class="captured-slot"></div>
-  <div id="captured-right" class="captured-slot"></div>
-  <div id="captured-bottom" class="captured-slot"></div>
-  <div id="captured-left" class="captured-slot"></div>
+  <div id="captured-top" class="captured-area"></div>
+  <div id="captured-right" class="captured-area"></div>
+  <div id="captured-bottom" class="captured-area"></div>
+  <div id="captured-left" class="captured-area"></div>
 
 </div>
 
 <h3 style="margin-top:10px;">Tangan Kamu</h3>
-<div id="hand" class="cards"></div>
+
+<div id="playerHandContainer">
+  <div id="captured-me" class="captured-strip"></div>
+  <div id="hand" class="cards"></div>
+</div>
+
 
 <h3 style="margin-top:10px;">Skor</h3>
 <ul id="score"></ul>
