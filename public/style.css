@@ -168,29 +168,49 @@ body {
   color: gold;
 }
 
+.captured-area {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  min-height: 60px;
+}
+
 /* Posisi untuk 2-4 pemain */
 #captured-top {
   top: 150px;
   left: 50%;
   transform: translateX(-50%);
+  margin-top: 12px;
 }
 
 #captured-bottom {
   bottom: 150px;
   left: 50%;
   transform: translateX(-50%);
+  margin-bottom: 12px;
 }
 
 #captured-left {
   top: 50%;
   left: 50px;
   transform: translateY(-50%);
+  margin-left: 60px;
 }
 
 #captured-right {
   top: 50%;
   right: 50px;
   transform: translateY(-50%);
+  margin-right: 60px;
+}
+
+.captured-card {
+  width: 40px;
+  height: 55px;
+  border-radius: 6px;
 }
 
 .hand-row {
