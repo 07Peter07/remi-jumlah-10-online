@@ -55,6 +55,7 @@ function render() {
   placePlayersUI();
   renderTable();
   renderHand(); 
+  renderCapturedForPlayer(playerIndex);
   renderScore();
 }
 
@@ -211,38 +212,27 @@ function renderHand() {
   me.hand.forEach((c,i)=>{
     const img = document.createElement("img");
     img.src = `/cards/${fileName(c)}`;
-    img.className = "card-img";
+    img.className = "card-img" + (selectedHand===i ? " selected" : "");
     img.style.outline = selectedHand===i?"3px solid yellow":"none";
     img.onclick = ()=>selectHand(i);
     handDiv.appendChild(img);
   });
 }
 
-function renderCaptured(i, slotId) {
-  const slot = document.getElementById(slotId);
+function renderCapturedForPlayer(i) {
+  if (i !== playerIndex) return;
+  const slot = document.getElementById("captured-me");
   const p = gameState.players[i];
-
   if (!slot) return;
   slot.innerHTML = "";
 
-  if (!p.captured || p.captured.length === 0) return;
-
-  const title = document.createElement("div");
-  title.innerText = "Menangkap:";
-  slot.appendChild(title);
-
-  const wrap = document.createElement("div");
-  wrap.className = "cards";
-
-  p.captured.forEach(c => {
+  p.captured.forEach(c=>{
     const img = document.createElement("img");
-    img.src = `/cards/${fileName(c)}`;
-    img.className = "card-img small";
-    wrap.appendChild(img);
+    img.src = `/cards/${cardFile(c)}`;
+    slot.appendChild(img);
   });
-
-  slot.appendChild(wrap);
 }
+
 
 
 /* === PILIH KARTU === */
