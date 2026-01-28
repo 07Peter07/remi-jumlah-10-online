@@ -136,62 +136,55 @@ io.on("connection", socket => {
   // ===== MAIN PLAY (PAIRING) =====
   socket.on("play", ({ roomId, playerIndex, handIndex, tableIndex }) => {
     const room = rooms[roomId];
-    if (!room) return;
-    if (room.turn !== playerIndex) return;
+    const player = room.playersArr[playerIndex];
 
-    const player = room.players[playerIndex];
     const handCard = player.hand[handIndex];
     const tableCard = room.table[tableIndex];
 
     if (!handCard || !tableCard) return;
-    if (!canPair(handCard, tableCard)) return;
 
-    player.captured.push(handCard, tableCard);
+    if (valueOf(handCard) + valueOf(tableCard) === 10) {
+      // pair success → move to captured
+      player.captured.push(handCard, tableCard);
+
+      player.hand.splice(handIndex, 1);
+      room.table.splice(tableIndex, 1);
+
+      player.mustTake = true;
+    }
+    broadcast(roomId);
+  });
+
+  // === BUANG KARTU JIKA TIDAK ADA PAIR ===
+  socket.on("discard", ({ roomId, playerIndex, handIndex }) => {
+    const room = rooms[roomId];
+    const player = room.playersArr[playerIndex];
+
+    const card = player.hand[handIndex];
+    if (!card) return;
+
+    room.table.push(card);
     player.hand.splice(handIndex, 1);
-    room.table.splice(tableIndex, 1);
-
-    
-    room.players.forEach(p => {
-      p.score = calculateScore(p.captured);
-    });
-    
-    io.to(roomId).emit("update", publicRoomState(room));
+    player.mustTake = true;
+    broadcast(roomId);
   });
 
   // ===== TAKE-ONE (AMBIL KARTU DARI MEJA) =====
-  socket.on("take-one", ({ roomId, playerIndex }) => {
-  const room = rooms[roomId];
-  if (!room) return;
-  if (room.turn !== playerIndex) return;
-  if (room.deck.length === 0) return;
+ socket.on("take-one", ({ roomId, playerIndex }) => {
+    const room = rooms[roomId];
+    const player = room.playersArr[playerIndex];
 
-  const player = room.players[playerIndex];
-  const drawn = room.deck.shift();
+    if (!player.mustTake) return;
+    if (room.deck.length === 0) shuffleDiscardIntoDeck(room);
 
-  // cek apakah bisa pair dengan meja
-  const matchIndex = room.table.findIndex(t => canPair(drawn, t));
+    player.hand.push(room.deck.pop());
+    player.mustTake = false;
 
-  if (matchIndex >= 0) {
-    // capture
-    player.captured.push(drawn, room.table[matchIndex]);
-    room.table.splice(matchIndex, 1);
-  } else {
-    // taruh di meja
-    room.table.push(drawn);
-  }
-
-  // update score
-  room.players.forEach(p => {
-    p.score = calculateScore(p.captured);
+    room.turn = (room.turn + 1) % room.maxPlayers;
+    broadcast(roomId);
   });
-
-  // next turn
-  room.turn = (room.turn + 1) % room.players.length;
-
-  io.to(roomId).emit("update", publicRoomState(room));
 });
 
-});
 
 console.log("DEBUG: server.js reached bottom");
 
